@@ -1,0 +1,17 @@
+[project]
+name = "bestou"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Rubens", email = "38709237+andrader@users.noreply.github.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+bestou = "bestou:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
