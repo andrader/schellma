@@ -84,7 +84,7 @@ except ConversionError as e:
 from . import exceptions
 from .converters import json_schema_to_llm, pydantic_to_llm, to_llm
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = [
     "json_schema_to_llm",
     "pydantic_to_llm",

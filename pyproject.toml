@@ -1,6 +1,6 @@
 [project]
 name = "schellma"
-version = "0.1.0"
+version = "0.2.0"
 description = "Clean, simplified schemas from Pydantic models for LLM prompts - less verbose than JSON Schema"
 readme = "README.md"
 license = { text = "MIT" }
