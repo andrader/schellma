@@ -24,12 +24,11 @@ class Status(Enum):
     This enum represents different status values that can be used
     in models to indicate the current state of an entity.
 
-    ## Attributes
-
-    - **ACTIVE**: Entity is currently active and operational
-    - **INACTIVE**: Entity is inactive but can be reactivated
-    - **PENDING**: Entity is waiting for some action or approval
-    - **COMPLETED**: Entity has finished its lifecycle
+    Attributes:
+        ACTIVE: Entity is currently active and operational
+        INACTIVE: Entity is inactive but can be reactivated
+        PENDING: Entity is waiting for some action or approval
+        COMPLETED: Entity has finished its lifecycle
     """
 
     ACTIVE = "ACTIVE"
@@ -44,18 +43,14 @@ class NestedModel(BaseModel):
     This model demonstrates basic field types and is used throughout
     the test suite to verify conversion functionality.
 
-    ## Attributes
+    Attributes:
+        text (str): A string field with description
+        number (int): An integer field with description
 
-    - **text**: A string field with description
-    - **number**: An integer field with description
-
-    ## Example
-
-    ```python
-    model = NestedModel(text="example", number=123)
-    print(f"{model.text}: {model.number}")
-    # Output: example: 123
-    ```
+    Example:
+        >>> model = NestedModel(text="example", number=123)
+        >>> print(f"{model.text}: {model.number}")
+        example: 123
     """
 
     text: str = Field(description="A text field")

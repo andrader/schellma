@@ -31,27 +31,21 @@ def setup_logging(
     This function configures logging for the schellma package. By default,
     schellma uses minimal logging to avoid interfering with user applications.
 
-    ## Args
+    Args:
+        level: Logging level (e.g., logging.DEBUG, logging.INFO)
+        format_string: Custom format string for log messages
+        handler: Custom logging handler (if None, uses StreamHandler)
 
-    - **level**: Logging level (e.g., `logging.DEBUG`, `logging.INFO`)
-    - **format_string**: Custom format string for log messages
-    - **handler**: Custom logging handler (if `None`, uses `StreamHandler`)
-
-    ## Example
-
-    ```python
-    import logging
-    from schellma.logging import setup_logging
-
-    # Enable debug logging
-    setup_logging(level=logging.DEBUG)
-
-    # Custom format
-    setup_logging(
-        level=logging.INFO,
-        format_string="%(asctime)s - %(name)s - %(message)s"
-    )
-    ```
+    Example:
+        >>> import logging
+        >>> from schellma.logging import setup_logging
+        >>> # Enable debug logging
+        >>> setup_logging(level=logging.DEBUG)
+        >>> # Custom format
+        >>> setup_logging(
+        ...     level=logging.INFO,
+        ...     format_string="%(asctime)s - %(name)s - %(message)s"
+        ... )
     """
     # Remove existing handlers to avoid duplicates
     for existing_handler in logger.handlers[:]:
@@ -77,16 +71,13 @@ def setup_logging(
 def disable_logging() -> None:
     """Disable all logging for schellma operations.
 
-    This function disables logging by setting the level to `CRITICAL+1`,
+    This function disables logging by setting the level to CRITICAL+1,
     effectively silencing all log messages.
 
-    ## Example
-
-    ```python
-    from schellma.logging import disable_logging
-    disable_logging()
-    # Now schellma operations will not produce any log output
-    ```
+    Example:
+        >>> from schellma.logging import disable_logging
+        >>> disable_logging()
+        # Now schellma operations will not produce any log output
     """
     logger.setLevel(logging.CRITICAL + 1)
 
@@ -97,16 +88,12 @@ def get_logger() -> logging.Logger:
     This function returns the logger instance used by schellma,
     allowing users to configure it directly if needed.
 
-    ## Returns
+    Returns:
+        The schellma logger instance
 
-    The schellma logger instance
-
-    ## Example
-
-    ```python
-    from schellma.logging import get_logger
-    logger = get_logger()
-    logger.setLevel(logging.DEBUG)
-    ```
+    Example:
+        >>> from schellma.logging import get_logger
+        >>> logger = get_logger()
+        >>> logger.setLevel(logging.DEBUG)
     """
     return logger

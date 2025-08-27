@@ -31,16 +31,14 @@ def _create_indent_formatter(
 ) -> tuple[str, str, str, str]:
     """Create indentation formatting strings based on indent parameter and nesting level.
 
-    ## Args
+    Args:
+        indent: Indentation configuration
+            - False/None/0: No indentation
+            - int: Number of spaces per level (default 2)
+        level: Nesting level (1 = top level, 2 = nested, etc.)
 
-    - **indent**: Indentation configuration
-        - `False/None/0`: No indentation
-        - `int`: Number of spaces per level (default 2)
-    - **level**: Nesting level (1 = top level, 2 = nested, etc.)
-
-    ## Returns
-
-    Tuple of (property_indent, comment_prefix, property_template, close_brace)
+    Returns:
+        Tuple of (property_indent, comment_prefix, property_template, close_brace)
     """
     if indent is False or indent is None or indent == 0:
         # No indentation - compact format
@@ -65,23 +63,20 @@ def json_schema_to_llm(
 ) -> str:
     """Convert a JSON Schema to TypeScript-like type definition string.
 
-    ## Args
+    Args:
+        schema: JSON Schema dictionary from model.model_json_schema()
+        define_types: If True, define reused types separately to avoid repetition
+        indent: Indentation configuration:
+            - False/None/0: No indentation (compact format)
+            - int: Number of spaces per indentation level (default: 2)
 
-    - **schema**: JSON Schema dictionary from `model.model_json_schema()`
-    - **define_types**: If `True`, define reused types separately to avoid repetition
-    - **indent**: Indentation configuration:
-            - `False/None/0`: No indentation (compact format)
-            - `int`: Number of spaces per indentation level (default: 2)
-
-    ## Returns
-
+    Returns:
         A string representation of the TypeScript-like type definition
 
-    ## Raises
-
-    - **InvalidSchemaError**: If the schema is invalid or malformed
-    - **ConversionError**: If conversion fails for any reason
-    - **CircularReferenceError**: If circular references are detected
+    Raises:
+        InvalidSchemaError: If the schema is invalid or malformed
+        ConversionError: If conversion fails for any reason
+        CircularReferenceError: If circular references are detected
     """
     logger.debug(
         f"Converting JSON schema to TypeScript (define_types={define_types}, indent={indent})"
@@ -444,23 +439,20 @@ def pydantic_to_llm(
 ) -> str:
     """Convert a Pydantic model to a TypeScript-like type definition string.
 
-    ## Args
+    Args:
+        model_class: A Pydantic BaseModel class
+        define_types: If True, define reused types separately to avoid repetition
+        indent: Indentation configuration:
+            - False/None/0: No indentation (compact format)
+            - int: Number of spaces per indentation level (default: 2)
 
-    - **model_class**: A Pydantic BaseModel class
-    - **define_types**: If `True`, define reused types separately to avoid repetition
-    - **indent**: Indentation configuration:
-        - `False/None/0`: No indentation (compact format)
-        - `int`: Number of spaces per indentation level (default: 2)
+    Returns:
+        A string representation of the TypeScript-like type definition
 
-    ## Returns
-
-    A string representation of the TypeScript-like type definition
-
-    ## Raises
-
-    - **InvalidSchemaError**: If the model is invalid
-    - **ConversionError**: If conversion fails for any reason
-    - **CircularReferenceError**: If circular references are detected
+    Raises:
+        InvalidSchemaError: If the model is invalid
+        ConversionError: If conversion fails for any reason
+        CircularReferenceError: If circular references are detected
     """
     logger.debug(
         f"Converting Pydantic model {getattr(model_class, '__name__', str(model_class))} to TypeScript"
@@ -500,23 +492,20 @@ def to_llm(
 ) -> str:
     """Convert a JSON Schema dictionary or Pydantic model to a TypeScript-like type definition string.
 
-    ## Args
+    Args:
+        obj: A JSON Schema dictionary or Pydantic model
+        define_types: If True, define reused types separately to avoid repetition
+        indent: Indentation configuration:
+            - False/None/0: No indentation (compact format)
+            - int: Number of spaces per indentation level (default: 2)
 
-    - **obj**: A JSON Schema dictionary or Pydantic model
-    - **define_types**: If `True`, define reused types separately to avoid repetition
-    - **indent**: Indentation configuration:
-        - `False/None/0`: No indentation (compact format)
-        - `int`: Number of spaces per indentation level (default: 2)
+    Returns:
+        A string representation of the TypeScript-like type definition
 
-    ## Returns
-
-    A string representation of the TypeScript-like type definition
-
-    ## Raises
-
-    - **InvalidSchemaError**: If the model is invalid
-    - **ConversionError**: If conversion fails for any reason
-    - **CircularReferenceError**: If circular references are detected
+    Raises:
+        InvalidSchemaError: If the model is invalid
+        ConversionError: If conversion fails for any reason
+        CircularReferenceError: If circular references are detected
     """
     if isinstance(obj, type) and issubclass(obj, BaseModel):
         return pydantic_to_llm(obj, define_types, indent)

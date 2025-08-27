@@ -44,26 +44,25 @@ class ComprehensiveTest(BaseModel):
     This model is primarily used for testing the conversion functionality
     and serves as a comprehensive example of supported types.
 
-    ## Attributes
-
-    - **text**: A simple text field
-    - **number**: An integer field
-    - **decimal_val**: A decimal number field
-    - **is_active**: A boolean flag
-    - **created_at**: A datetime timestamp
-    - **birth_date**: A date field
-    - **meeting_time**: A time field
-    - **user_id**: A UUID identifier
-    - **tags**: A list of string tags
-    - **scores**: A set of integer scores
-    - **metadata**: A dictionary with string keys and any values
-    - **coordinates**: A tuple of two floats (x, y coordinates)
-    - **variable_tuple**: A variable-length tuple of strings
-    - **optional_text**: An optional text field
-    - **optional_nested**: An optional nested model
-    - **nested_dict**: A dictionary containing lists of nested models
-    - **tuple_with_models**: A tuple containing exactly two nested models
-    - **status**: An enum field representing status
+    Attributes:
+        text (str): A simple text field
+        number (int): An integer field
+        decimal_val (Decimal): A decimal number field
+        is_active (bool): A boolean flag
+        created_at (datetime): A datetime timestamp
+        birth_date (date): A date field
+        meeting_time (time): A time field
+        user_id (UUID): A UUID identifier
+        tags (list[str]): A list of string tags
+        scores (set[int]): A set of integer scores
+        metadata (dict[str, Any]): A dictionary with string keys and any values
+        coordinates (tuple[float, float]): A tuple of two floats (x, y coordinates)
+        variable_tuple (tuple[str, ...]): A variable-length tuple of strings
+        optional_text (str | None): An optional text field
+        optional_nested (NestedModel | None): An optional nested model
+        nested_dict (dict[str, list[NestedModel]]): A dictionary containing lists of nested models
+        tuple_with_models (tuple[NestedModel, NestedModel]): A tuple containing exactly two nested models
+        status (Status): An enum field representing status
     """
 
     # Basic types

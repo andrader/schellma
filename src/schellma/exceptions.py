@@ -25,15 +25,12 @@ class ScheLLMaError(Exception):
     This is the root exception class for all scheLLMa-specific errors.
     Catching this exception will catch any error raised by scheLLMa.
 
-    ## Example
-
-    ```python
-    try:
-        # scheLLMa operations
-        pass
-    except ScheLLMaError as e:
-        print(f"scheLLMa error: {e}")
-    ```
+    Example:
+        >>> try:
+        ...     # scheLLMa operations
+        ...     pass
+        ... except ScheLLMaError as e:
+        ...     print(f"scheLLMa error: {e}")
     """
 
     pass
@@ -49,22 +46,18 @@ class InvalidSchemaError(ScheLLMaError):
     This exception is raised when the input schema doesn't conform
     to expected JSON Schema format or contains invalid structures.
 
-    ## Common causes
+    Common causes:
+        - Empty or non-dictionary schema
+        - Invalid $defs structure
+        - Malformed property definitions
+        - Non-BaseModel classes passed to conversion functions
 
-    - Empty or non-dictionary schema
-    - Invalid `$defs` structure
-    - Malformed property definitions
-    - Non-BaseModel classes passed to conversion functions
-
-    ## Example
-
-    ```python
-    from schellma import json_schema_to_llm
-    try:
-        json_schema_to_llm({})  # Empty schema
-    except InvalidSchemaError as e:
-        print(f"Invalid schema: {e}")
-    ```
+    Example:
+        >>> from schellma import json_schema_to_llm
+        >>> try:
+        ...     json_schema_to_llm({})  # Empty schema
+        ... except InvalidSchemaError as e:
+        ...     print(f"Invalid schema: {e}")
     """
 
     pass
@@ -77,22 +70,18 @@ class ConversionError(ScheLLMaError):
     an error that prevents successful type generation, such as
     invalid type definitions or unsupported schema constructs.
 
-    ## Common causes
+    Common causes:
+        - Invalid type definitions in schema
+        - Malformed anyOf/oneOf constructs
+        - Invalid property names or structures
+        - Failed nested conversions
 
-    - Invalid type definitions in schema
-    - Malformed `anyOf`/`oneOf` constructs
-    - Invalid property names or structures
-    - Failed nested conversions
-
-    ## Example
-
-    ```python
-    from schellma import json_schema_to_llm
-    try:
-        json_schema_to_llm({"properties": "invalid"})
-    except ConversionError as e:
-        print(f"Conversion failed: {e}")
-    ```
+    Example:
+        >>> from schellma import json_schema_to_llm
+        >>> try:
+        ...     json_schema_to_llm({"properties": "invalid"})
+        ... except ConversionError as e:
+        ...     print(f"Conversion failed: {e}")
     """
 
     pass
@@ -107,24 +96,21 @@ class CircularReferenceError(ScheLLMaError):
     Circular references occur when a type definition references
     itself either directly or through a chain of other definitions.
 
-    ## Example
-
-    ```python
-    schema = {
-        "type": "object",
-        "properties": {"self": {"$ref": "#/$defs/Self"}},
-        "$defs": {
-            "Self": {
-                "type": "object",
-                "properties": {"nested": {"$ref": "#/$defs/Self"}}
-            }
-        }
-    }
-    try:
-        json_schema_to_llm(schema, define_types=False)
-    except CircularReferenceError as e:
-        print(f"Circular reference: {e}")
-    ```
+    Example:
+        >>> schema = {
+        ...     "type": "object",
+        ...     "properties": {"self": {"$ref": "#/$defs/Self"}},
+        ...     "$defs": {
+        ...         "Self": {
+        ...             "type": "object",
+        ...             "properties": {"nested": {"$ref": "#/$defs/Self"}}
+        ...         }
+        ...     }
+        ... }
+        >>> try:
+        ...     json_schema_to_llm(schema, define_types=False)
+        ... except CircularReferenceError as e:
+        ...     print(f"Circular reference: {e}")
     """
 
     pass
@@ -139,10 +125,9 @@ class UnsupportedTypeError(ScheLLMaError):
     While scheLLMa supports most common JSON Schema constructs,
     some advanced or rarely-used features may not be implemented.
 
-    ## Note
-
-    Currently most types are supported, so this exception is rarely raised.
-    It's included for future extensibility when new schema features are encountered.
+    Note:
+        Currently most types are supported, so this exception is rarely raised.
+        It's included for future extensibility when new schema features are encountered.
     """
 
     pass

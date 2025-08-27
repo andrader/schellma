@@ -94,7 +94,10 @@ __all__ = [
 
 
 def main() -> None:
-    """Main entry point for CLI."""
+    """Main entry point for CLI.
+
+    Prints a comprehensive test example showing all supported type conversions.
+    """
     from .examples import ComprehensiveTest
 
     print("\n=== ComprehensiveTest - All supported types ===")
