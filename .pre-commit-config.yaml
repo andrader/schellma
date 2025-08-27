@@ -25,5 +25,17 @@ repos:
     name: ruff-format
     stages: [pre-commit]
     types_or: [python, pyi]
+  - id: mypy
+    entry: uv run --frozen --dev mypy
+    language: system
+    name: mypy
+    stages: [pre-commit]
+    types: [python]
+  - id: pytest
+    entry: uv run --frozen --dev python -m pytest
+    language: system
+    name: pytest
+    stages: [pre-commit]
+    pass_filenames: false
     
     

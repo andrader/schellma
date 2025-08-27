@@ -93,13 +93,16 @@ class TestComprehensiveCoverage:
         assert result == "object"
 
         # Schema with empty properties
-        schema = {"type": "object", "properties": {}}
-        result = json_schema_to_typescript(schema)
+        empty_props_schema: dict[str, object] = {"type": "object", "properties": {}}
+        result = json_schema_to_typescript(empty_props_schema)
         assert result == "{\n}"
 
         # Schema with only additionalProperties
-        schema = {"type": "object", "additionalProperties": True}
-        result = json_schema_to_typescript(schema)
+        additional_props_schema: dict[str, object] = {
+            "type": "object",
+            "additionalProperties": True,
+        }
+        result = json_schema_to_typescript(additional_props_schema)
         assert result == "{ [key: string]: any }"
 
     def test_deeply_nested_structures(self):
@@ -304,21 +307,24 @@ class TestComprehensiveCoverage:
         assert result == TS_ANY_TYPE
 
         # Test null type in union
-        schema = {"anyOf": [{"type": "null"}]}
-        result = json_schema_to_typescript(schema)
+        null_union_schema: dict[str, object] = {"anyOf": [{"type": "null"}]}
+        result = json_schema_to_typescript(null_union_schema)
         assert TS_NULL_TYPE in result
 
         # Test object type fallback
-        schema = {"type": "object"}
-        result = json_schema_to_typescript(schema)
+        object_schema = {"type": "object"}
+        result = json_schema_to_typescript(object_schema)
         assert result == TS_OBJECT_TYPE
 
         # Test any array fallback
-        schema = {"type": "array"}
-        result = json_schema_to_typescript(schema)
+        array_schema = {"type": "array"}
+        result = json_schema_to_typescript(array_schema)
         assert result == TS_ANY_ARRAY_TYPE
 
         # Test index signature any
-        schema = {"type": "object", "additionalProperties": True}
-        result = json_schema_to_typescript(schema)
+        index_sig_schema: dict[str, object] = {
+            "type": "object",
+            "additionalProperties": True,
+        }
+        result = json_schema_to_typescript(index_sig_schema)
         assert result == TS_INDEX_SIGNATURE_ANY

@@ -467,10 +467,9 @@ def pydantic_to_typescript_type(
     )
 
     if not isinstance(model_class, type):
+        error_msg = f"model_class must be a class, got {type(model_class).__name__}"
         logger.error(f"Invalid model class type: {type(model_class).__name__}")
-        raise InvalidSchemaError(
-            f"model_class must be a class, got {type(model_class).__name__}"
-        )
+        raise InvalidSchemaError(error_msg)
 
     # Check if it's a BaseModel subclass
     try:
