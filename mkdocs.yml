@@ -1,0 +1,117 @@
+site_name: scheLLMa
+site_url: https://andrader.github.io/schellma
+repo_url: https://github.com/andrader/schellma
+repo_name: schellma
+edit_uri: edit/main/docs/
+theme:
+  icon:
+    repo: fontawesome/brands/github
+  name: material
+  # logo: assets/logo.png
+  # favicon: assets/favicon .png
+  features:
+    - navigation.instant # behaves like a Single Page Application
+    - navigation.footer
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.tracking
+    - navigation.path
+    - navigation.top
+    - toc.follow
+    # - toc.integrate
+    - content.action.view
+    - content.action.edit
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to Light Mode
+
+    # Light Mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to Dark Mode
+      primary: black
+      accent: indigo
+
+    # Dark Mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Switch to System Mode
+      primary: black
+      accent: indigo
+
+  font:
+    text: Poppins
+    code: Roboto Mono
+
+markdown_extensions:
+  - toc:
+      toc_depth: 3
+      permalink: true
+  - abbr
+  - admonition
+  - attr_list # allows to add HTML attributes and CSS classes to almost every Markdown inline- and block-level element
+  - footnotes
+  - md_in_html
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.blocks.caption
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.arithmatex:
+      generic: true
+plugins:
+  # material built-in plugins
+  - search: # enable search
+      lang: pt # pt-br didn't work
+  - tags # enable tags
+  # external plugins
+  - mkdocstrings: # Automatic documentation from sources
+      default_handler: python
+      handlers:
+        python:
+          options:
+            docstring_section_style: table # or "table"
+            docstring_style: "numpy"
+            filters: ["!^_"]
+            heading_level: 1
+            merge_init_into_class: true
+            parameter_headings: true
+            separate_signature: true
+            show_object_full_path: false
+            show_root_full_path: false
+            show_root_heading: false
+            show_signature_annotations: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            summary: true
+            backlinks: tree
+  - api-autonav:
+      modules: ["src/schellma"]
+      nav_item_prefix: ""
+
+  - awesome-nav
