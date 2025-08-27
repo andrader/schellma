@@ -153,13 +153,13 @@ def json_schema_to_typescript(
                 ]
                 return TS_TUPLE_TEMPLATE.format(types=", ".join(prefix_types))
             except Exception as e:
-                raise ConversionError(f"Failed to convert tuple items: {e}")
+                raise ConversionError(f"Failed to convert tuple items: {e}") from e
         elif "items" in json_type:
             try:
                 item_type = convert_json_schema_type(json_type["items"], level)
                 return TS_ARRAY_TEMPLATE.format(type=item_type)
             except Exception as e:
-                raise ConversionError(f"Failed to convert array items: {e}")
+                raise ConversionError(f"Failed to convert array items: {e}") from e
         return TS_ANY_ARRAY_TYPE
 
     def convert_object_type(json_type: dict, level: int = 1) -> str:
@@ -171,7 +171,9 @@ def json_schema_to_typescript(
                 # Re-raise circular reference errors as-is
                 raise
             except Exception as e:
-                raise ConversionError(f"Failed to convert object properties: {e}")
+                raise ConversionError(
+                    f"Failed to convert object properties: {e}"
+                ) from e
         elif "additionalProperties" in json_type:
             return convert_additional_properties(json_type, level)
         return TS_OBJECT_TYPE
@@ -196,7 +198,9 @@ def json_schema_to_typescript(
 
                 return TS_INDEX_SIGNATURE_TEMPLATE.format(type=value_type)
             except Exception as e:
-                raise ConversionError(f"Failed to convert additionalProperties: {e}")
+                raise ConversionError(
+                    f"Failed to convert additionalProperties: {e}"
+                ) from e
         else:
             raise ConversionError(
                 f"Invalid additionalProperties value: {additional_props}"
@@ -233,7 +237,7 @@ def json_schema_to_typescript(
             else:
                 return TS_UNION_SEPARATOR.join(types)
         except Exception as e:
-            raise ConversionError(f"Failed to convert anyOf: {e}")
+            raise ConversionError(f"Failed to convert anyOf: {e}") from e
 
     def convert_one_of(one_of_list: list, level: int = 1) -> str:
         """Convert oneOf to TypeScript union type."""
@@ -244,7 +248,7 @@ def json_schema_to_typescript(
             types = [convert_json_schema_type(t, level) for t in one_of_list]
             return TS_UNION_SEPARATOR.join(types)
         except Exception as e:
-            raise ConversionError(f"Failed to convert oneOf: {e}")
+            raise ConversionError(f"Failed to convert oneOf: {e}") from e
 
     def convert_json_schema_type(json_type: dict, level: int = 1) -> str:
         """Convert a JSON Schema type to TypeScript type."""
@@ -320,7 +324,9 @@ def json_schema_to_typescript(
                 # Re-raise circular reference errors as-is
                 raise
             except Exception as e:
-                raise ConversionError(f"Failed to convert property '{prop_name}': {e}")
+                raise ConversionError(
+                    f"Failed to convert property '{prop_name}': {e}"
+                ) from e
 
         lines.append(close_brace)
         return "\n".join(lines)
@@ -346,7 +352,7 @@ def json_schema_to_typescript(
                 except Exception as e:
                     raise ConversionError(
                         f"Failed to convert definition '{def_name}': {e}"
-                    )
+                    ) from e
 
         raise ConversionError(f"Definition '{def_name}' not found in schema")
 
@@ -409,7 +415,7 @@ def json_schema_to_typescript(
                 except Exception as e:
                     raise ConversionError(
                         f"Failed to convert definition '{def_name}': {e}"
-                    )
+                    ) from e
 
     # Convert main schema
     try:
@@ -418,7 +424,7 @@ def json_schema_to_typescript(
         # Re-raise circular reference errors as-is
         raise
     except Exception as e:
-        raise ConversionError(f"Failed to convert main schema: {e}")
+        raise ConversionError(f"Failed to convert main schema: {e}") from e
 
     # Combine results
     result_parts = []
@@ -472,14 +478,16 @@ def pydantic_to_typescript_type(
             raise InvalidSchemaError(
                 f"model_class must be a BaseModel subclass, got {model_class.__name__}"
             )
-    except TypeError:
+    except TypeError as e:
         raise InvalidSchemaError(
             f"model_class must be a class, got {type(model_class).__name__}"
-        )
+        ) from e
 
     try:
         schema = model_class.model_json_schema()
     except Exception as e:
-        raise InvalidSchemaError(f"Failed to generate JSON schema from model: {e}")
+        raise InvalidSchemaError(
+            f"Failed to generate JSON schema from model: {e}"
+        ) from e
 
     return json_schema_to_typescript(schema, define_types, indent)

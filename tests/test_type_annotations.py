@@ -22,7 +22,7 @@ def test_type_annotations():
     assert "return" in hints
 
     # Verify return type is str
-    assert hints["return"] == str
+    assert hints["return"] is str
 
 
 def test_function_signature():
