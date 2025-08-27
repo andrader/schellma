@@ -1,45 +1,75 @@
 # scheLLMa
 
+_Schemas for LLMs and Structured Output_
+
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://badge.fury.io/py/schellma.svg)](https://badge.fury.io/py/schellma)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**scheLLMa** - _Schemas for LLMs_
+Converts Pydantic models/JSON Schemas to clean, simplified type definitions perfect for **generating structured output** with **LLM prompts**. 
 
-A professional Python package that converts Pydantic models to clean, simplified type definitions perfect for LLM prompts. Unlike verbose JSON Schema formats (used by tools like Instructor), scheLLMa produces readable, concise type definitions that are ideal for language model interactions.
-
-## Why scheLLMa?
-
-When working with LLMs, you need clean, readable schemas that:
+Unlike verbose JSON Schema formats, **scheLLMa** produces readable, concise type definitions that are ideal for language model interactions and structured output generation:
 
 - **Reduce token usage** - Concise format saves on API costs
-- **Improve LLM understanding** - Simple syntax is easier for models to parse
-- **Minimize errors** - Less verbose than JSON Schema, reducing confusion
+- **Minimize parsing errors** - Simple syntax is easier for models to parse, less verbose than JSON Schema, reducing confusion
 - **Stay readable** - Human-friendly format for prompt engineering
+
+<div class="grid" markdown>
+
+!!! note "Pydantic"
+
+    ```python
+    from pydantic import BaseModel, Field
+    from schellma import to_llm
+
+    class User(BaseModel):
+        name: str = Field(..., description="The name of the user")
+        age: int
+        email: str | None = None
+    ```
+
+!!! quote "JSON Schema"
+
+    ```json
+    {
+    "type": "object",
+    "properties": {
+        "name": { "type": "string", "description": "The name of the user" },
+        "age": { "type": "integer" },
+        "email": { "type": ["string", "null"], "default": null }
+    },
+    "required": ["name", "age"],
+    "additionalProperties": false
+    }
+    ```
+
+!!! tip "ScheLLMa"
+
+    ```typescript
+    {
+        // The name of the user
+        "name": string,
+        "age": int,
+        "email": string | null,
+    }
+    ```
+
+</div>
+
+
+
+
 
 ## Features
 
 - 🤖 **Optimized for LLM prompts** - Clean, readable type definitions
+- 💰 **Token-efficient** - Reduces LLM API costs
 - 🎯 **Support for all common Python types** (str, int, bool, datetime, etc.)
 - 🏗️ **Handle complex nested structures and collections**
 - 🔗 **Support for enums, optional types, and unions**
-- 🛡️ **Comprehensive error handling** with descriptive messages
-- 🔍 **Circular reference detection** and prevention
 - ⚙️ **Customizable output formatting**
-- 📝 **Full type safety** with mypy support
-- 💰 **Token-efficient** - Reduces LLM API costs
 
-## Installation
 
-```bash
-pip install schellma
-```
-
-Or using uv:
-
-```bash
-uv add schellma
-```
 
 ## Quick Start
 
@@ -47,7 +77,7 @@ uv add schellma
 
 ```python
 from pydantic import BaseModel
-from schellma import pydantic_to_typescript_type
+from schellma import to_llm
 
 class User(BaseModel):
     name: str
@@ -55,7 +85,7 @@ class User(BaseModel):
     email: str | None = None
 
 # Convert to clean schema for LLM prompts
-schema = pydantic_to_typescript_type(User)
+schema = to_llm(User)
 print(schema)
 ```
 
@@ -69,11 +99,24 @@ Output:
 }
 ```
 
+## Installation
+
+```bash
+pip install schellma
+```
+
+Or using uv:
+
+```bash
+uv add schellma
+```
+
+
 ### LLM Prompt Integration
 
 ```python
 from pydantic import BaseModel
-from schellma import pydantic_to_typescript_type
+from schellma import to_llm
 
 class TaskRequest(BaseModel):
     title: str
@@ -82,14 +125,12 @@ class TaskRequest(BaseModel):
     due_date: str | None = None
 
 # Generate schema for LLM prompt
-schema = pydantic_to_typescript_type(TaskRequest)
+schema = to_llm(TaskRequest)
 
 prompt = f"""
 Please create a task with the following structure:
 
 {schema}
-
-Make sure to include a title and priority level.
 """
 
 # Use with your favorite LLM API
@@ -128,7 +169,7 @@ Make sure to include a title and priority level.
 ```python
 from pydantic import BaseModel
 from typing import List, Optional
-from schellma import pydantic_to_typescript_type
+from schellma import to_llm
 
 class Address(BaseModel):
     street: str
@@ -142,7 +183,7 @@ class User(BaseModel):
     primary_address: Optional[Address] = None
 
 # Generate with separate type definitions
-schema = pydantic_to_typescript_type(User, define_types=True)
+schema = to_llm(User, define_types=True)
 print(schema)
 ```
 
@@ -201,69 +242,7 @@ scheLLMa supports a comprehensive range of Python and Pydantic types:
 - **UUID** → `string`
 - **Decimal** → `number`
 
-## API Reference
 
-### `pydantic_to_typescript_type(model_class, define_types=False, indent=2)`
-
-Convert a Pydantic model to clean schema for LLM prompts.
-
-**Parameters:**
-
-- `model_class` (Type[BaseModel]): The Pydantic model class to convert
-- `define_types` (bool): If True, define reused types separately to avoid repetition
-- `indent` (Union[int, bool, None]): Indentation configuration:
-  - `False`/`None`/`0`: No indentation (compact format)
-  - `int`: Number of spaces per indentation level (default: 2)
-
-**Returns:**
-
-- `str`: Clean schema definition for LLM prompts
-
-**Raises:**
-
-- `InvalidSchemaError`: If the model is invalid
-- `ConversionError`: If conversion fails
-- `CircularReferenceError`: If circular references are detected
-
-### `json_schema_to_typescript(schema, define_types=True, indent=2)`
-
-Convert a JSON Schema to clean schema for LLM prompts.
-
-**Parameters:**
-
-- `schema` (dict): JSON Schema dictionary
-- `define_types` (bool): If True, define reused types separately
-- `indent` (Union[int, bool, None]): Indentation configuration:
-  - `False`/`None`/`0`: No indentation (compact format)
-  - `int`: Number of spaces per indentation level (default: 2)
-
-**Returns:**
-
-- `str`: Clean schema definition for LLM prompts
-
-## Error Handling
-
-scheLLMa provides comprehensive error handling with descriptive messages:
-
-```python
-from schellma import pydantic_to_typescript_type
-from schellma.exceptions import InvalidSchemaError, ConversionError
-
-try:
-    result = pydantic_to_typescript_type(MyModel)
-except InvalidSchemaError as e:
-    print(f"Schema validation failed: {e}")
-except ConversionError as e:
-    print(f"Conversion failed: {e}")
-```
-
-### Exception Types
-
-- **`ScheLLMaError`**: Base exception for all scheLLMa errors
-- **`InvalidSchemaError`**: Raised when schema is invalid or malformed
-- **`ConversionError`**: Raised when conversion fails
-- **`CircularReferenceError`**: Raised when circular references are detected
-- **`UnsupportedTypeError`**: Raised for unsupported types
 
 ## Examples
 
@@ -281,7 +260,7 @@ class Task(BaseModel):
     title: str
     status: Status
 
-schema = pydantic_to_typescript_type(Task)
+schema = pydantic_to_llm(Task)
 # Output: { "title": string, "status": "active" | "inactive" }
 ```
 
@@ -301,20 +280,20 @@ class Post(BaseModel):
     tags: List[Tag]
     metadata: Dict[str, str]
 
-schema = pydantic_to_typescript_type(Post, define_types=True)
+schema = pydantic_to_llm(Post, define_types=True)
 ```
 
 ### Indentation Control
 
 ```python
-from schellma import pydantic_to_typescript_type
+from schellma import pydantic_to_llm
 
 class User(BaseModel):
     name: str
     age: int
 
 # Default indentation (2 spaces)
-result = pydantic_to_typescript_type(User)
+result = pydantic_to_llm(User)
 # Output:
 # {
 #   "name": string,
@@ -322,7 +301,7 @@ result = pydantic_to_typescript_type(User)
 # }
 
 # Custom indentation (4 spaces)
-result = pydantic_to_typescript_type(User, indent=4)
+result = pydantic_to_llm(User, indent=4)
 # Output:
 # {
 #     "name": string,
@@ -330,7 +309,7 @@ result = pydantic_to_typescript_type(User, indent=4)
 # }
 
 # No indentation (compact for minimal tokens)
-result = pydantic_to_typescript_type(User, indent=False)
+result = pydantic_to_llm(User, indent=False)
 # Output: {"name": string,"age": int,}
 ```
 
@@ -351,14 +330,14 @@ This will show a comprehensive example of all supported types.
 ```python
 import openai
 from pydantic import BaseModel
-from schellma import pydantic_to_typescript_type
+from schellma import pydantic_to_llm
 
 class Response(BaseModel):
     answer: str
     confidence: float
     sources: list[str]
 
-schema = pydantic_to_typescript_type(Response)
+schema = pydantic_to_llm(Response)
 
 response = openai.chat.completions.create(
     model="gpt-4",
@@ -373,9 +352,9 @@ response = openai.chat.completions.create(
 
 ```python
 import anthropic
-from schellma import pydantic_to_typescript_type
+from schellma import pydantic_to_llm
 
-schema = pydantic_to_typescript_type(MyModel, indent=False)  # Compact for tokens
+schema = pydantic_to_llm(MyModel, indent=False)  # Compact for tokens
 
 client = anthropic.Anthropic()
 response = client.messages.create(
@@ -433,13 +412,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Changelog
 
-### v0.1.0
-
-- Initial release as scheLLMa
-- Optimized for LLM prompt integration
-- Clean, token-efficient schema generation
-- Support for all basic Python types
-- Comprehensive error handling
-- Circular reference detection
-- Full test coverage
-- Type safety with mypy
+See [Changelog](CHANGELOG.md) for the changelog.
