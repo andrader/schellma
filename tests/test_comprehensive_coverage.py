@@ -5,7 +5,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from schellma import json_schema_to_typescript, pydantic_to_typescript_type
+from schellma import json_schema_to_llm, pydantic_to_llm
 
 
 class Color(Enum):
@@ -45,7 +45,7 @@ class TestComprehensiveCoverage:
 
     def test_complex_model_conversion(self):
         """Test conversion of complex model with all types."""
-        result = pydantic_to_typescript_type(ComplexModel, define_types=True)
+        result = pydantic_to_llm(ComplexModel, define_types=True)
 
         # Check basic types
         assert '"name": string,' in result
@@ -76,8 +76,8 @@ class TestComprehensiveCoverage:
 
     def test_inline_vs_defined_types(self):
         """Test difference between inline and defined types."""
-        inline_result = pydantic_to_typescript_type(ComplexModel, define_types=False)
-        defined_result = pydantic_to_typescript_type(ComplexModel, define_types=True)
+        inline_result = pydantic_to_llm(ComplexModel, define_types=False)
+        defined_result = pydantic_to_llm(ComplexModel, define_types=True)
 
         # Inline should not have separate type definitions
         assert "Color {" not in inline_result
@@ -89,12 +89,12 @@ class TestComprehensiveCoverage:
         """Test edge case JSON schemas."""
         # Schema with no properties
         schema = {"type": "object"}
-        result = json_schema_to_typescript(schema)
+        result = json_schema_to_llm(schema)
         assert result == "object"
 
         # Schema with empty properties
         empty_props_schema: dict[str, object] = {"type": "object", "properties": {}}
-        result = json_schema_to_typescript(empty_props_schema)
+        result = json_schema_to_llm(empty_props_schema)
         assert result == "{\n}"
 
         # Schema with only additionalProperties
@@ -102,7 +102,7 @@ class TestComprehensiveCoverage:
             "type": "object",
             "additionalProperties": True,
         }
-        result = json_schema_to_typescript(additional_props_schema)
+        result = json_schema_to_llm(additional_props_schema)
         assert result == "{ [key: string]: any }"
 
     def test_deeply_nested_structures(self):
@@ -132,7 +132,7 @@ class TestComprehensiveCoverage:
             },
         }
 
-        result = json_schema_to_typescript(schema)
+        result = json_schema_to_llm(schema)
         assert '"level1": {' in result
         assert '"level2": {' in result
         assert '"level3": {' in result
@@ -149,7 +149,7 @@ class TestComprehensiveCoverage:
             ]
         }
 
-        result = json_schema_to_typescript(schema)
+        result = json_schema_to_llm(schema)
         assert "string | int | boolean | null" in result
 
     def test_mixed_tuple_types(self):
@@ -165,7 +165,7 @@ class TestComprehensiveCoverage:
             ],
         }
 
-        result = json_schema_to_typescript(schema)
+        result = json_schema_to_llm(schema)
         assert "[string, int, boolean, number, string | null]" in result
 
     def test_complex_additional_properties(self):
@@ -179,7 +179,7 @@ class TestComprehensiveCoverage:
             },
         }
 
-        result = json_schema_to_typescript(schema)
+        result = json_schema_to_llm(schema)
         assert "{ [key: string]: {" in result
         assert '"nested": string' in result
 
@@ -187,7 +187,7 @@ class TestComprehensiveCoverage:
         """Test enums with different value types."""
         schema = {"type": "string", "enum": ["active", "inactive", "pending"]}
 
-        result = json_schema_to_typescript(schema)
+        result = json_schema_to_llm(schema)
         assert '"active" | "inactive" | "pending"' in result
 
     def test_all_primitive_types(self):
@@ -201,13 +201,13 @@ class TestComprehensiveCoverage:
 
         for json_type, ts_type in primitives.items():
             schema = {"type": json_type}
-            result = json_schema_to_typescript(schema)
+            result = json_schema_to_llm(schema)
             assert result == ts_type
 
     def test_array_without_items(self):
         """Test array without items specification."""
         schema = {"type": "array"}
-        result = json_schema_to_typescript(schema)
+        result = json_schema_to_llm(schema)
         assert result == "any[]"
 
     def test_object_with_description_only_properties(self):
@@ -221,7 +221,7 @@ class TestComprehensiveCoverage:
             },
         }
 
-        result = json_schema_to_typescript(schema)
+        result = json_schema_to_llm(schema)
         assert "// A string field" in result
         assert "// A boolean field" in result
         assert '"field1": string,' in result
@@ -234,8 +234,8 @@ class TestComprehensiveCoverage:
 
         one_of_schema = {"oneOf": [{"type": "string"}, {"type": "integer"}]}
 
-        any_of_result = json_schema_to_typescript(any_of_schema)
-        one_of_result = json_schema_to_typescript(one_of_schema)
+        any_of_result = json_schema_to_llm(any_of_schema)
+        one_of_result = json_schema_to_llm(one_of_schema)
 
         # Both should produce the same union type
         assert any_of_result == one_of_result
@@ -245,7 +245,7 @@ class TestComprehensiveCoverage:
         """Test enum with empty values list."""
         schema = {"type": "string", "enum": []}
 
-        result = json_schema_to_typescript(schema)
+        result = json_schema_to_llm(schema)
         # Should return empty union (which becomes empty string when joined)
         assert result == ""
 
@@ -253,7 +253,7 @@ class TestComprehensiveCoverage:
         """Test enum with single value."""
         schema = {"type": "string", "enum": ["only_value"]}
 
-        result = json_schema_to_typescript(schema)
+        result = json_schema_to_llm(schema)
         assert result == '"only_value"'
 
     def test_model_with_field_constraints(self):
@@ -268,7 +268,7 @@ class TestComprehensiveCoverage:
                 pattern=r"^[^@]+@[^@]+\.[^@]+$", description="Email with pattern"
             )
 
-        result = pydantic_to_typescript_type(ConstrainedModel)
+        result = pydantic_to_llm(ConstrainedModel)
 
         # Constraints should not affect TypeScript output, but descriptions should be present
         assert "// Name with constraints" in result
@@ -286,7 +286,7 @@ class TestComprehensiveCoverage:
             children: list["TreeNode"] = []
 
         # This should work without circular reference error
-        result = pydantic_to_typescript_type(TreeNode, define_types=True)
+        result = pydantic_to_llm(TreeNode, define_types=True)
         assert "TreeNode" in result
         assert '"value": string' in result
         assert '"children": TreeNode[]' in result
@@ -303,22 +303,22 @@ class TestComprehensiveCoverage:
 
         # Test any type fallback
         schema = {"type": "unknown"}
-        result = json_schema_to_typescript(schema)
+        result = json_schema_to_llm(schema)
         assert result == TS_ANY_TYPE
 
         # Test null type in union
         null_union_schema: dict[str, object] = {"anyOf": [{"type": "null"}]}
-        result = json_schema_to_typescript(null_union_schema)
+        result = json_schema_to_llm(null_union_schema)
         assert TS_NULL_TYPE in result
 
         # Test object type fallback
         object_schema = {"type": "object"}
-        result = json_schema_to_typescript(object_schema)
+        result = json_schema_to_llm(object_schema)
         assert result == TS_OBJECT_TYPE
 
         # Test any array fallback
         array_schema = {"type": "array"}
-        result = json_schema_to_typescript(array_schema)
+        result = json_schema_to_llm(array_schema)
         assert result == TS_ANY_ARRAY_TYPE
 
         # Test index signature any
@@ -326,5 +326,5 @@ class TestComprehensiveCoverage:
             "type": "object",
             "additionalProperties": True,
         }
-        result = json_schema_to_typescript(index_sig_schema)
+        result = json_schema_to_llm(index_sig_schema)
         assert result == TS_INDEX_SIGNATURE_ANY

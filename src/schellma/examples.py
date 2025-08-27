@@ -11,8 +11,8 @@ converted to TypeScript-like type definitions.
 
 ```python
 from schellma.examples import ComprehensiveTest
-from schellma import pydantic_to_typescript_type
-ts_type = pydantic_to_typescript_type(ComprehensiveTest)
+from schellma import pydantic_to_llm
+ts_type = pydantic_to_llm(ComprehensiveTest)
 print(ts_type)
 ```
 """

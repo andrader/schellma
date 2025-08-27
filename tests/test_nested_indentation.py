@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel
 
-from schellma import pydantic_to_typescript_type
+from schellma import pydantic_to_llm
 
 
 class Address(BaseModel):
@@ -22,7 +22,7 @@ class TestNestedIndentation:
 
     def test_nested_object_indentation_inline(self):
         """Test that nested objects have proper cumulative indentation when define_types=False."""
-        result = pydantic_to_typescript_type(User, define_types=False, indent=2)
+        result = pydantic_to_llm(User, define_types=False, indent=2)
 
         print("Result:")
         print(result)
@@ -64,9 +64,9 @@ class TestNestedIndentation:
             },
         }
 
-        from schellma import json_schema_to_typescript
+        from schellma import json_schema_to_llm
 
-        result = json_schema_to_typescript(schema, define_types=False, indent=2)
+        result = json_schema_to_llm(schema, define_types=False, indent=2)
 
         print("Deep nested result:")
         print(result)
@@ -85,8 +85,8 @@ class TestNestedIndentation:
 
     def test_nested_vs_defined_types(self):
         """Test that define_types=True doesn't have this issue."""
-        result_defined = pydantic_to_typescript_type(User, define_types=True, indent=2)
-        result_inline = pydantic_to_typescript_type(User, define_types=False, indent=2)
+        result_defined = pydantic_to_llm(User, define_types=True, indent=2)
+        result_inline = pydantic_to_llm(User, define_types=False, indent=2)
 
         print("Defined types result:")
         print(result_defined)

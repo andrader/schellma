@@ -28,7 +28,7 @@ When working with LLMs, you need clean, readable schemas that:
 
 ```python
 from pydantic import BaseModel
-from schellma import pydantic_to_typescript_type
+from schellma import pydantic_to_llm
 
 class User(BaseModel):
     name: str
@@ -36,7 +36,7 @@ class User(BaseModel):
     email: str | None = None
 
 # Generate clean schema for LLM prompts
-schema = pydantic_to_typescript_type(User)
+schema = pydantic_to_llm(User)
 print(schema)
 ```
 
@@ -52,14 +52,14 @@ Output:
 ## LLM Integration
 
 ```python
-from schellma import pydantic_to_typescript_type
+from schellma import pydantic_to_llm
 
 class TaskRequest(BaseModel):
     title: str
     priority: int
     tags: list[str]
 
-schema = pydantic_to_typescript_type(TaskRequest)
+schema = pydantic_to_llm(TaskRequest)
 
 prompt = f'''
 Please create a task with this structure:
@@ -73,7 +73,7 @@ Please create a task with this structure:
 ```python
 from schellma.exceptions import InvalidSchemaError, ConversionError
 try:
-    result = pydantic_to_typescript_type(SomeModel)
+    result = pydantic_to_llm(SomeModel)
 except InvalidSchemaError as e:
     print(f"Schema validation failed: {e}")
 except ConversionError as e:
@@ -81,31 +81,15 @@ except ConversionError as e:
 ```
 """
 
-from .converters import json_schema_to_typescript, pydantic_to_typescript_type
-from .exceptions import (
-    CircularReferenceError,
-    ConversionError,
-    InvalidSchemaError,
-    ScheLLMaError,
-    UnsupportedTypeError,
-)
-from .logging import disable_logging, get_logger, setup_logging
-from .models import NestedModel, Status
+from . import exceptions
+from .converters import json_schema_to_llm, pydantic_to_llm, to_llm
 
 __version__ = "0.1.0"
 __all__ = [
-    "json_schema_to_typescript",
-    "pydantic_to_typescript_type",
-    "NestedModel",
-    "Status",
-    "ScheLLMaError",
-    "InvalidSchemaError",
-    "ConversionError",
-    "CircularReferenceError",
-    "UnsupportedTypeError",
-    "setup_logging",
-    "disable_logging",
-    "get_logger",
+    "json_schema_to_llm",
+    "pydantic_to_llm",
+    "to_llm",
+    "exceptions",
 ]
 
 
@@ -114,5 +98,5 @@ def main() -> None:
     from .examples import ComprehensiveTest
 
     print("\n=== ComprehensiveTest - All supported types ===")
-    result = pydantic_to_typescript_type(ComprehensiveTest, define_types=True, indent=2)
+    result = pydantic_to_llm(ComprehensiveTest, define_types=True, indent=2)
     print(result)

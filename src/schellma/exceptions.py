@@ -59,9 +59,9 @@ class InvalidSchemaError(ScheLLMaError):
     ## Example
 
     ```python
-    from schellma import json_schema_to_typescript
+    from schellma import json_schema_to_llm
     try:
-        json_schema_to_typescript({})  # Empty schema
+        json_schema_to_llm({})  # Empty schema
     except InvalidSchemaError as e:
         print(f"Invalid schema: {e}")
     ```
@@ -87,9 +87,9 @@ class ConversionError(ScheLLMaError):
     ## Example
 
     ```python
-    from schellma import json_schema_to_typescript
+    from schellma import json_schema_to_llm
     try:
-        json_schema_to_typescript({"properties": "invalid"})
+        json_schema_to_llm({"properties": "invalid"})
     except ConversionError as e:
         print(f"Conversion failed: {e}")
     ```
@@ -121,7 +121,7 @@ class CircularReferenceError(ScheLLMaError):
         }
     }
     try:
-        json_schema_to_typescript(schema, define_types=False)
+        json_schema_to_llm(schema, define_types=False)
     except CircularReferenceError as e:
         print(f"Circular reference: {e}")
     ```

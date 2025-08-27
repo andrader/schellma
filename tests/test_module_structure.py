@@ -1,37 +1,24 @@
 """Test module structure and imports."""
 
 from schellma import (
-    NestedModel,
-    Status,
-    json_schema_to_typescript,
-    pydantic_to_typescript_type,
+    json_schema_to_llm,
+    pydantic_to_llm,
 )
-from schellma.converters import json_schema_to_typescript as ConvertersFunction
+from schellma.converters import json_schema_to_llm as ConvertersFunction
 from schellma.examples import ComprehensiveTest
-from schellma.models import NestedModel as ModelsNestedModel
-from schellma.models import Status as ModelsStatus
+from schellma.models import NestedModel, Status
 
 
 def test_main_imports():
     """Test that main package imports work correctly."""
-    assert callable(json_schema_to_typescript)
-    assert callable(pydantic_to_typescript_type)
-    assert NestedModel is not None
-    assert Status is not None
-
-
-def test_models_module():
-    """Test that models module exports work correctly."""
-    assert ModelsNestedModel is not None
-    assert ModelsStatus is not None
-    assert NestedModel is ModelsNestedModel
-    assert Status is ModelsStatus
+    assert callable(json_schema_to_llm)
+    assert callable(pydantic_to_llm)
 
 
 def test_converters_module():
     """Test that converters module exports work correctly."""
     assert callable(ConvertersFunction)
-    assert ConvertersFunction is json_schema_to_typescript
+    assert ConvertersFunction is json_schema_to_llm
 
 
 def test_examples_module():
@@ -71,6 +58,6 @@ def test_examples_module():
 
 def test_basic_conversion():
     """Test basic conversion functionality works after module restructure."""
-    result = pydantic_to_typescript_type(NestedModel, define_types=False)
+    result = pydantic_to_llm(NestedModel, define_types=False)
     assert "string" in result
     assert "int" in result
