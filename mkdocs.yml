@@ -11,16 +11,20 @@ theme:
   # favicon: assets/favicon .png
   features:
     - navigation.instant # behaves like a Single Page Application
+    - navigation.instant.prefetch
     - navigation.footer
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.tracking
     - navigation.path
     - navigation.top
+    - navigation.indexes
+    - navigation.sections
     - toc.follow
-    # - toc.integrate
+    - toc.integrate
     - content.action.view
     - content.action.edit
+    - content.code.copy
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
@@ -95,8 +99,8 @@ plugins:
       handlers:
         python:
           options:
-            docstring_section_style: table # or "table"
-            docstring_style: "numpy"
+            docstring_section_style: table # or
+            docstring_style: "google"
             filters: ["!^_"]
             heading_level: 1
             merge_init_into_class: true
@@ -104,7 +108,7 @@ plugins:
             separate_signature: true
             show_object_full_path: false
             show_root_full_path: false
-            show_root_heading: false
+            show_root_heading: true
             show_signature_annotations: true
             show_symbol_type_heading: true
             show_symbol_type_toc: true
@@ -112,6 +116,10 @@ plugins:
             backlinks: tree
   - api-autonav:
       modules: ["src/schellma"]
-      nav_item_prefix: ""
+      nav_section_title: "API Reference"
+      api_root_uri: "reference"
+      nav_item_prefix: "<code class='doc-symbol doc-symbol-nav doc-symbol-module'></code>"
+      exclude_private: true
+      on_implicit_namespace_package: "skip"
 
   - awesome-nav
