@@ -4,7 +4,7 @@ import sys
 from typing import get_type_hints
 
 from schellma.converters import pydantic_to_llm
-from schellma.models import NestedModel
+from tests._examples import NestedModel
 
 
 def test_python_version_compatibility():

@@ -1,7 +1,7 @@
 """Test the refactored conversion functions."""
 
 from schellma import json_schema_to_llm
-from schellma.models import NestedModel
+from tests._examples import NestedModel
 
 
 class TestRefactoredFunctions:

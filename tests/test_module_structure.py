@@ -5,8 +5,7 @@ from schellma import (
     pydantic_to_llm,
 )
 from schellma.converters import json_schema_to_llm as ConvertersFunction
-from schellma.examples import ComprehensiveTest
-from schellma.models import NestedModel, Status
+from tests._examples import ComprehensiveTest, NestedModel, Status
 
 
 def test_main_imports():

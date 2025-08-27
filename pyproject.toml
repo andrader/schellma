@@ -59,9 +59,6 @@ Repository = "https://github.com/andrader/schellma.git"
 Issues = "https://github.com/andrader/schellma/issues"
 Changelog = "https://github.com/andrader/schellma/releases"
 
-[project.scripts]
-schellma = "schellma:main"
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

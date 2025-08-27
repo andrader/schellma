@@ -91,15 +91,3 @@ __all__ = [
     "to_llm",
     "exceptions",
 ]
-
-
-def main() -> None:
-    """Main entry point for CLI.
-
-    Prints a comprehensive test example showing all supported type conversions.
-    """
-    from .examples import ComprehensiveTest
-
-    print("\n=== ComprehensiveTest - All supported types ===")
-    result = pydantic_to_llm(ComprehensiveTest, define_types=True, indent=2)
-    print(result)
