@@ -55,6 +55,8 @@ packages = ["src/schellma"]
 
 [dependency-groups]
 dev = [
+    "commitizen>=4.8.3",
+    "pre-commit>=4.2.0",
     "pytest>=8.4.1",
     "ruff>=0.12.10",
     "mypy>=1.17.1",
@@ -65,48 +67,6 @@ dev = [
     "mkdocs-awesome-nav>=3.1.2",
 ]
 
-[tool.ruff]
-target-version = "py311"
-line-length = 88
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line too long, handled by formatter
-]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
-warn_unreachable = true
-strict_equality = true
-show_error_codes = true
-
-[[tool.mypy.overrides]]
-module = "tests.*"
-disallow_untyped_defs = false
-disallow_incomplete_defs = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -114,3 +74,11 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = ["--strict-markers", "--strict-config", "--verbose"]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$version"
+version_scheme = "semver2"
+version_provider = "uv"
+update_changelog_on_bump = true
+major_version_zero = true
