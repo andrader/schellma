@@ -111,6 +111,12 @@ Or using uv:
 uv add schellma
 ```
 
+### Install from github
+
+```bash
+uv add git+https://github.com/andrader/schellma.git
+```
+
 
 ### LLM Prompt Integration
 
