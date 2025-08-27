@@ -1,0 +1,29 @@
+default_install_hook_types: [pre-commit, pre-push, commit-msg]
+repos:
+- repo: https://github.com/gitleaks/gitleaks
+  rev: v8.23.1
+  hooks:
+  - id: gitleaks
+- repo: https://github.com/commitizen-tools/commitizen
+  rev: v4.8.3
+  hooks:
+  - id: commitizen
+  - id: commitizen-branch
+    stages: [pre-push]
+  
+- repo: local
+  hooks:
+  - id: ruff-lint
+    entry: uv run --frozen --dev ruff check --fix
+    language: system
+    name: ruff
+    stages: [pre-commit]
+    types_or: [python, pyi]
+  - id: ruff-format
+    entry: uv run --frozen --dev ruff format
+    language: system
+    name: ruff-format
+    stages: [pre-commit]
+    types_or: [python, pyi]
+    
+    
