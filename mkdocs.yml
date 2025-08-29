@@ -121,6 +121,7 @@ plugins:
             backlinks: tree
   - api-autonav:
       modules: ["src/schellma"]
+      exclude: ["schellma.demo_features", "schellma.logger", "schellma.constants"]
       nav_section_title: "API Reference"
       api_root_uri: "reference"
       nav_item_prefix: "<code class='doc-symbol doc-symbol-nav doc-symbol-module'></code>"
