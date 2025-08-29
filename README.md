@@ -123,6 +123,7 @@ uv add git+https://github.com/andrader/schellma.git
 ```python
 from pydantic import BaseModel
 from schellma import to_llm
+import openai
 
 class TaskRequest(BaseModel):
     title: str
@@ -133,14 +134,31 @@ class TaskRequest(BaseModel):
 # Generate schema for LLM prompt
 schema = to_llm(TaskRequest)
 
+
 prompt = f"""
 Please create a task with the following structure:
 
 {schema}
 """
+print(prompt)
 
 # Use with your favorite LLM API
-# response = openai.chat.completions.create(...)
+completion = openai.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[{
+        "role": "user",
+        "content": prompt
+    }]
+)
+
+content = completion.choices[0].message.content
+print(content)
+
+
+
+task = TaskRequest.model_validate_json(clean_content(content))
+print(task)
+# TaskRequest(title='Task 1', priority=1, tags=['tag1', 'tag2'], due_date=None)
 ```
 
 ### Comparison with JSON Schema
@@ -266,7 +284,7 @@ class Task(BaseModel):
     title: str
     status: Status
 
-schema = pydantic_to_llm(Task)
+schema = to_llm(Task)
 # Output: { "title": string, "status": "active" | "inactive" }
 ```
 
@@ -286,20 +304,20 @@ class Post(BaseModel):
     tags: List[Tag]
     metadata: Dict[str, str]
 
-schema = pydantic_to_llm(Post, define_types=True)
+schema = to_llm(Post, define_types=True)
 ```
 
 ### Indentation Control
 
 ```python
-from schellma import pydantic_to_llm
+from schellma import to_llm
 
 class User(BaseModel):
     name: str
     age: int
 
 # Default indentation (2 spaces)
-result = pydantic_to_llm(User)
+result = to_llm(User)
 # Output:
 # {
 #   "name": string,
@@ -307,7 +325,7 @@ result = pydantic_to_llm(User)
 # }
 
 # Custom indentation (4 spaces)
-result = pydantic_to_llm(User, indent=4)
+result = to_llm(User, indent=4)
 # Output:
 # {
 #     "name": string,
@@ -315,7 +333,7 @@ result = pydantic_to_llm(User, indent=4)
 # }
 
 # No indentation (compact for minimal tokens)
-result = pydantic_to_llm(User, indent=False)
+result = to_llm(User, indent=False)
 # Output: {"name": string,"age": int,}
 ```
 
@@ -336,14 +354,14 @@ This will show a comprehensive example of all supported types.
 ```python
 import openai
 from pydantic import BaseModel
-from schellma import pydantic_to_llm
+from schellma import to_llm
 
 class Response(BaseModel):
     answer: str
     confidence: float
     sources: list[str]
 
-schema = pydantic_to_llm(Response)
+schema = to_llm(Response)
 
 response = openai.chat.completions.create(
     model="gpt-4",
@@ -358,9 +376,9 @@ response = openai.chat.completions.create(
 
 ```python
 import anthropic
-from schellma import pydantic_to_llm
+from schellma import to_llm
 
-schema = pydantic_to_llm(MyModel, indent=False)  # Compact for tokens
+schema = to_llm(MyModel, indent=False)  # Compact for tokens
 
 client = anthropic.Anthropic()
 response = client.messages.create(
