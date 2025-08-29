@@ -18,7 +18,7 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field
 
-from schellma.converters import to_llm
+from schellma.converters import schellma
 from schellma.logger import get_logger, setup_logging
 
 logger = get_logger()
@@ -48,7 +48,7 @@ def demonstrate_feature(title: str, model_or_schema: Any, description: str) -> s
         json_str = json.dumps(model_or_schema, indent=2)
         text.append(JSON_CODE.format(code=json_str))
 
-    code = to_llm(model_or_schema, define_types=True)
+    code = schellma(model_or_schema, define_types=True)
     text.append(TYPESCRIPT_CODE.format(code=code))
 
     md = "\n".join(text)

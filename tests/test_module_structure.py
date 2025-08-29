@@ -1,23 +1,23 @@
 """Test module structure and imports."""
 
 from schellma import (
-    json_schema_to_llm,
-    pydantic_to_llm,
+    json_schema_to_schellma,
+    pydantic_to_schellma,
 )
-from schellma.converters import json_schema_to_llm as ConvertersFunction
+from schellma.converters import json_schema_to_schellma as ConvertersFunction
 from tests._examples import ComprehensiveTest, NestedModel, Status
 
 
 def test_main_imports():
     """Test that main package imports work correctly."""
-    assert callable(json_schema_to_llm)
-    assert callable(pydantic_to_llm)
+    assert callable(json_schema_to_schellma)
+    assert callable(pydantic_to_schellma)
 
 
 def test_converters_module():
     """Test that converters module exports work correctly."""
     assert callable(ConvertersFunction)
-    assert ConvertersFunction is json_schema_to_llm
+    assert ConvertersFunction is json_schema_to_schellma
 
 
 def test_examples_module():
@@ -57,6 +57,6 @@ def test_examples_module():
 
 def test_basic_conversion():
     """Test basic conversion functionality works after module restructure."""
-    result = pydantic_to_llm(NestedModel, define_types=False)
+    result = pydantic_to_schellma(NestedModel, define_types=False)
     assert "string" in result
     assert "int" in result

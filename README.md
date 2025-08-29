@@ -20,7 +20,7 @@ Unlike verbose JSON Schema formats, **scheLLMa** produces readable, concise type
 
     ```python
     from pydantic import BaseModel, Field
-    from schellma import pydantic_to_llm
+    from schellma import pydantic_to_schellma
 
     class User(BaseModel):
         name: str = Field(default="Anonymous", description="The name of the user")
@@ -84,7 +84,7 @@ Unlike verbose JSON Schema formats, **scheLLMa** produces readable, concise type
 
 ```python
 from pydantic import BaseModel
-from schellma import to_llm
+from schellma import schellma
 
 class User(BaseModel):
     name: str
@@ -92,7 +92,7 @@ class User(BaseModel):
     email: str | None = None
 
 # Convert to clean schema for LLM prompts
-schema = to_llm(User)
+schema = schellma(User)
 print(schema)
 ```
 
@@ -129,7 +129,7 @@ uv add git+https://github.com/andrader/schellma.git
 
 ```python
 from pydantic import BaseModel
-from schellma import to_llm
+from schellma import schellma
 import openai
 
 class TaskRequest(BaseModel):
@@ -139,7 +139,7 @@ class TaskRequest(BaseModel):
     due_date: str | None = None
 
 # Generate schema for LLM prompt
-schema = to_llm(TaskRequest)
+schema = schellma(TaskRequest)
 
 
 prompt = f"""
@@ -200,7 +200,7 @@ print(task)
 ```python
 from pydantic import BaseModel
 from typing import List, Optional
-from schellma import to_llm
+from schellma import schellma
 
 class Address(BaseModel):
     street: str
@@ -214,7 +214,7 @@ class User(BaseModel):
     primary_address: Optional[Address] = None
 
 # Generate with separate type definitions
-schema = to_llm(User, define_types=True)
+schema = schellma(User, define_types=True)
 print(schema)
 ```
 
@@ -291,7 +291,7 @@ class Task(BaseModel):
     title: str
     status: Status
 
-schema = to_llm(Task)
+schema = schellma(Task)
 # Output: { "title": string, "status": "active" | "inactive" }
 ```
 
@@ -311,20 +311,20 @@ class Post(BaseModel):
     tags: List[Tag]
     metadata: Dict[str, str]
 
-schema = to_llm(Post, define_types=True)
+schema = schellma(Post, define_types=True)
 ```
 
 ### Indentation Control
 
 ```python
-from schellma import to_llm
+from schellma import schellma
 
 class User(BaseModel):
     name: str
     age: int
 
 # Default indentation (2 spaces)
-result = to_llm(User)
+result = schellma(User)
 # Output:
 # {
 #   "name": string,
@@ -332,7 +332,7 @@ result = to_llm(User)
 # }
 
 # Custom indentation (4 spaces)
-result = to_llm(User, indent=4)
+result = schellma(User, indent=4)
 # Output:
 # {
 #     "name": string,
@@ -340,7 +340,7 @@ result = to_llm(User, indent=4)
 # }
 
 # No indentation (compact for minimal tokens)
-result = to_llm(User, indent=False)
+result = schellma(User, indent=False)
 # Output: {"name": string,"age": int,}
 ```
 
@@ -361,14 +361,14 @@ This will show a comprehensive example of all supported types.
 ```python
 import openai
 from pydantic import BaseModel
-from schellma import to_llm
+from schellma import schellma
 
 class Response(BaseModel):
     answer: str
     confidence: float
     sources: list[str]
 
-schema = to_llm(Response)
+schema = schellma(Response)
 
 response = openai.chat.completions.create(
     model="gpt-4",
@@ -383,9 +383,9 @@ response = openai.chat.completions.create(
 
 ```python
 import anthropic
-from schellma import to_llm
+from schellma import schellma
 
-schema = to_llm(MyModel, indent=False)  # Compact for tokens
+schema = schellma(MyModel, indent=False)  # Compact for tokens
 
 client = anthropic.Anthropic()
 response = client.messages.create(

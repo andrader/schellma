@@ -238,11 +238,11 @@ interface SearchResults {
 ### 🛠️ Try It Out
 
 ```python
-from schellma import pydantic_to_llm
+from schellma import pydantic_to_schellma
 from demo_complete_roadmap import UserProfile
 
 # Generate LLM-optimized schema
-schema = pydantic_to_llm(UserProfile)
+schema = pydantic_to_schellma(UserProfile)
 print(schema)
 ```
 

@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field
 
-from schellma import pydantic_to_llm
+from schellma import pydantic_to_schellma
 
 
 class TestRequiredOptional:
@@ -16,7 +16,7 @@ class TestRequiredOptional:
             email: str = Field(description="User email")
             age: int = Field(description="User age")
 
-        result = pydantic_to_llm(ModelWithRequired)
+        result = pydantic_to_schellma(ModelWithRequired)
 
         # All fields should be marked as required
         assert "User name, required" in result
@@ -31,7 +31,7 @@ class TestRequiredOptional:
             age: int = Field(default=0, description="User age")
             is_active: bool = Field(default=True, description="Active status")
 
-        result = pydantic_to_llm(ModelWithDefaults)
+        result = pydantic_to_schellma(ModelWithDefaults)
 
         # All fields should be marked as optional
         assert 'User name, default: "Anonymous", optional' in result
@@ -45,7 +45,7 @@ class TestRequiredOptional:
             phone: str | None = Field(default=None, description="Phone number")
             avatar: str | None = Field(description="Avatar URL")
 
-        result = pydantic_to_llm(ModelWithNullable)
+        result = pydantic_to_schellma(ModelWithNullable)
 
         # Fields should be marked as optional
         assert "Phone number, default: null, optional" in result
@@ -69,7 +69,7 @@ class TestRequiredOptional:
             phone: str | None = Field(default=None, description="Phone number")
             website: str | None = Field(description="Website URL")
 
-        result = pydantic_to_llm(MixedModel)
+        result = pydantic_to_schellma(MixedModel)
 
         # Required fields
         assert "User name, required" in result
@@ -91,7 +91,7 @@ class TestRequiredOptional:
             password: str = Field(default="", min_length=8, description="Password")
             age: int | None = Field(default=None, ge=0, le=150, description="Age")
 
-        result = pydantic_to_llm(ModelWithConstraints)
+        result = pydantic_to_schellma(ModelWithConstraints)
 
         assert "Username, length: 3-20, required" in result
         assert 'Password, default: "", minLength: 8, optional' in result
@@ -104,7 +104,7 @@ class TestRequiredOptional:
             required_field: str
             optional_field: str = Field(default="test")
 
-        result = pydantic_to_llm(ModelWithoutDescriptions)
+        result = pydantic_to_schellma(ModelWithoutDescriptions)
 
         assert "required" in result
         assert "optional" in result
@@ -119,7 +119,7 @@ class TestRequiredOptional:
             field3: bool = Field(description="Field 3")
             field4: str | None = Field(description="Field 4")  # Required nullable
 
-        result = pydantic_to_llm(AllRequiredModel)
+        result = pydantic_to_schellma(AllRequiredModel)
 
         # All fields should be marked as required
         required_count = result.count("required")
@@ -134,7 +134,7 @@ class TestRequiredOptional:
             field3: bool = Field(default=True, description="Field 3")
             field4: str | None = Field(default=None, description="Field 4")
 
-        result = pydantic_to_llm(AllOptionalModel)
+        result = pydantic_to_schellma(AllOptionalModel)
 
         # All fields should be marked as optional
         optional_count = result.count("optional")
@@ -156,7 +156,7 @@ class TestRequiredOptional:
                 default=None, description="Optional nested"
             )
 
-        result = pydantic_to_llm(ComplexModel)
+        result = pydantic_to_schellma(ComplexModel)
 
         assert "Required string, required" in result
         assert 'Optional string, default: "default", optional' in result

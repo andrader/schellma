@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field
 
-from schellma import pydantic_to_llm
+from schellma import pydantic_to_schellma
 
 
 class TestExamples:
@@ -16,7 +16,7 @@ class TestExamples:
             age: int = Field(description="User age", examples=[25])
             is_active: bool = Field(description="Active status", examples=[True])
 
-        result = pydantic_to_llm(ModelWithSingleExamples)
+        result = pydantic_to_schellma(ModelWithSingleExamples)
 
         assert 'example: "John Doe"' in result
         assert "example: 25" in result
@@ -33,7 +33,7 @@ class TestExamples:
                 description="Status code", examples=[200, 404, 500]
             )
 
-        result = pydantic_to_llm(ModelWithMultipleExamples)
+        result = pydantic_to_schellma(ModelWithMultipleExamples)
 
         assert 'examples: "GET", "POST", "PUT"' in result
         assert "examples: 200, 404, 500" in result
@@ -47,7 +47,7 @@ class TestExamples:
                 examples=["red", "blue", "green", "yellow", "purple", "orange"],
             )
 
-        result = pydantic_to_llm(ModelWithManyExamples)
+        result = pydantic_to_schellma(ModelWithManyExamples)
 
         assert 'examples: "red", "blue", "green", ...' in result
 
@@ -60,7 +60,7 @@ class TestExamples:
                 description="Config", examples=[{"theme": "dark", "lang": "en"}]
             )
 
-        result = pydantic_to_llm(ModelWithComplexExamples)
+        result = pydantic_to_schellma(ModelWithComplexExamples)
 
         assert 'example: ["tag1", "tag2"]' in result
         # Dictionary order may vary, so check for both possible orders
@@ -84,7 +84,7 @@ class TestExamples:
                 ge=0, le=150, examples=[25, 30, 35], description="User age"
             )
 
-        result = pydantic_to_llm(ModelWithEverything)
+        result = pydantic_to_schellma(ModelWithEverything)
 
         assert (
             'Username, default: "anonymous", length: 3-20, examples: "john_doe", "jane_smith", optional'
@@ -99,7 +99,7 @@ class TestExamples:
             name: str = Field(description="User name")
             age: int = Field(description="User age")
 
-        result = pydantic_to_llm(ModelWithoutExamples)
+        result = pydantic_to_schellma(ModelWithoutExamples)
 
         assert "example:" not in result
         assert "examples:" not in result
@@ -113,7 +113,7 @@ class TestExamples:
             with_examples: str = Field(description="Has examples", examples=["test"])
             without_examples: str = Field(description="No examples")
 
-        result = pydantic_to_llm(MixedModel)
+        result = pydantic_to_schellma(MixedModel)
 
         assert 'Has examples, example: "test", required' in result
         assert "No examples, required" in result
@@ -125,7 +125,7 @@ class TestExamples:
         class ModelWithEmptyExamples(BaseModel):
             field: str = Field(description="Test field", examples=[])
 
-        result = pydantic_to_llm(ModelWithEmptyExamples)
+        result = pydantic_to_schellma(ModelWithEmptyExamples)
 
         assert "example:" not in result
         assert "examples:" not in result
@@ -140,7 +140,7 @@ class TestExamples:
                 examples=["value1", "value2"],
             )
 
-        result = pydantic_to_llm(ModelWithNullableExamples)
+        result = pydantic_to_schellma(ModelWithNullableExamples)
 
         # Examples should be extracted from the non-null type in anyOf
         assert 'examples: "value1", "value2"' in result
@@ -162,7 +162,7 @@ class TestExamples:
                 description="String with quotes", examples=['He said "hello"']
             )
 
-        result = pydantic_to_llm(ModelWithEdgeCases)
+        result = pydantic_to_schellma(ModelWithEdgeCases)
 
         assert "example: null" in result
         assert "examples: true, false" in result

@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field
 
-from schellma import json_schema_to_llm, pydantic_to_llm
+from schellma import json_schema_to_schellma, pydantic_to_schellma
 
 
 class SimpleModel(BaseModel):
@@ -17,7 +17,7 @@ class TestIndentation:
 
     def test_default_indentation(self):
         """Test default indentation (2 spaces)."""
-        result = pydantic_to_llm(SimpleModel)
+        result = pydantic_to_schellma(SimpleModel)
 
         # Should use 2 spaces for properties
         assert '  "name": string,' in result
@@ -27,7 +27,7 @@ class TestIndentation:
 
     def test_custom_indentation_4_spaces(self):
         """Test custom indentation with 4 spaces."""
-        result = pydantic_to_llm(SimpleModel, indent=4)
+        result = pydantic_to_schellma(SimpleModel, indent=4)
 
         # Should use 4 spaces for properties
         assert '    "name": string,' in result
@@ -37,7 +37,7 @@ class TestIndentation:
 
     def test_no_indentation(self):
         """Test no indentation (compact format)."""
-        result = pydantic_to_llm(SimpleModel, indent=False)
+        result = pydantic_to_schellma(SimpleModel, indent=False)
 
         # Should have no indentation
         assert '"name": string,' in result
@@ -48,7 +48,7 @@ class TestIndentation:
 
     def test_no_indentation_with_none(self):
         """Test no indentation using None."""
-        result = pydantic_to_llm(SimpleModel, indent=None)
+        result = pydantic_to_schellma(SimpleModel, indent=None)
 
         # Should have no indentation
         assert '"name": string,' in result
@@ -57,7 +57,7 @@ class TestIndentation:
 
     def test_no_indentation_with_zero(self):
         """Test no indentation using 0."""
-        result = pydantic_to_llm(SimpleModel, indent=0)
+        result = pydantic_to_schellma(SimpleModel, indent=0)
 
         # Should have no indentation
         assert '"name": string,' in result
@@ -75,7 +75,7 @@ class TestIndentation:
         }
 
         # Test with 3 spaces
-        result = json_schema_to_llm(schema, indent=3)
+        result = json_schema_to_schellma(schema, indent=3)
         assert '   "name": string,' in result
         assert '   "value": int,' in result
         assert "   // A name field" in result
@@ -91,7 +91,7 @@ class TestIndentation:
             name: str
             address: Address
 
-        result = pydantic_to_llm(User, define_types=True, indent=2)
+        result = pydantic_to_schellma(User, define_types=True, indent=2)
 
         # Both the Address definition and main object should use same indentation
         assert '  "street": string,' in result
@@ -101,8 +101,8 @@ class TestIndentation:
 
     def test_compact_vs_indented_comparison(self):
         """Test difference between compact and indented formats."""
-        compact = pydantic_to_llm(SimpleModel, indent=False)
-        indented = pydantic_to_llm(SimpleModel, indent=2)
+        compact = pydantic_to_schellma(SimpleModel, indent=False)
+        indented = pydantic_to_schellma(SimpleModel, indent=2)
 
         # Compact should be shorter (due to less whitespace)
         assert len(compact) < len(indented)
@@ -133,7 +133,7 @@ class TestIndentation:
     def test_invalid_indent_uses_default(self):
         """Test that invalid indent values fall back to default."""
         # Negative numbers should use default
-        result = pydantic_to_llm(SimpleModel, indent=-1)
+        result = pydantic_to_schellma(SimpleModel, indent=-1)
         assert '  "name": string,' in result  # Should use default 2 spaces
 
         # String should use default (though type system should prevent this)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Comprehensive tests for advanced union types (allOf, not, discriminated unions)."""
 
-from schellma import json_schema_to_llm
+from schellma import json_schema_to_schellma
 
 
 class TestAdvancedUnions:
@@ -34,7 +34,7 @@ class TestAdvancedUnions:
             ],
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should merge all properties from both schemas
         assert '"id": string' in result
@@ -68,7 +68,7 @@ class TestAdvancedUnions:
             ],
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should include intersection comment
         assert "Intersection of: Base entity fields, User-specific fields" in result
@@ -86,7 +86,7 @@ class TestAdvancedUnions:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show not constraint with excluded values
         assert 'not: "forbidden", "banned", "deleted"' in result
@@ -99,7 +99,7 @@ class TestAdvancedUnions:
             "properties": {"value": {"type": "string", "not": {"enum": ["admin"]}}},
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show single not constraint
         assert 'not: "admin"' in result
@@ -108,7 +108,7 @@ class TestAdvancedUnions:
         """Test not constraint with type exclusion."""
         schema = {"type": "object", "properties": {"value": {"not": {"type": "null"}}}}
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show type exclusion
         assert "not: null" in result
@@ -146,7 +146,7 @@ class TestAdvancedUnions:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show discriminator information
         assert 'type: "user"' in result
@@ -164,7 +164,7 @@ class TestAdvancedUnions:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show generic not constraint for complex patterns
         assert "not: specific object pattern" in result
@@ -173,7 +173,7 @@ class TestAdvancedUnions:
         """Test allOf with empty schemas."""
         schema = {"type": "object", "allOf": [{"type": "object"}, {"type": "object"}]}
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should handle empty allOf gracefully
         assert "{" in result
@@ -205,7 +205,7 @@ class TestAdvancedUnions:
             ],
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should merge constraints and defaults
         assert 'default: "Anonymous"' in result

@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field
 
-from schellma import pydantic_to_llm
+from schellma import pydantic_to_schellma
 
 
 class TestConstraints:
@@ -16,7 +16,7 @@ class TestConstraints:
             username: str = Field(min_length=3, description="Username")
             bio: str = Field(max_length=500, description="Bio")
 
-        result = pydantic_to_llm(ModelWithStringConstraints)
+        result = pydantic_to_schellma(ModelWithStringConstraints)
 
         assert "length: 8-128" in result
         assert "minLength: 3" in result
@@ -31,7 +31,7 @@ class TestConstraints:
             username: str = Field(pattern=r"^[a-zA-Z0-9_]+$", description="Username")
             custom: str = Field(pattern=r"^[A-Z]{3}$", description="Custom pattern")
 
-        result = pydantic_to_llm(ModelWithPatterns)
+        result = pydantic_to_schellma(ModelWithPatterns)
 
         assert "format: email" in result
         assert "format: phone" in result
@@ -47,7 +47,7 @@ class TestConstraints:
             min_only: int = Field(ge=1, description="Minimum only")
             max_only: float = Field(le=999.99, description="Maximum only")
 
-        result = pydantic_to_llm(ModelWithNumericConstraints)
+        result = pydantic_to_schellma(ModelWithNumericConstraints)
 
         assert "range: 0-150" in result
         assert "range: 0.0-100.0" in result
@@ -62,7 +62,7 @@ class TestConstraints:
             integer_only: int = Field(multiple_of=1, description="Integer")
             custom_multiple: float = Field(multiple_of=2.5, description="Custom")
 
-        result = pydantic_to_llm(ModelWithMultipleConstraints)
+        result = pydantic_to_schellma(ModelWithMultipleConstraints)
 
         assert "multipleOf: 0.05 (5% increments)" in result
         assert "multipleOf: 1 (integers only)" in result
@@ -76,7 +76,7 @@ class TestConstraints:
             min_only: list[int] = Field(min_length=1, description="Minimum items")
             max_only: list[str] = Field(max_length=5, description="Maximum items")
 
-        result = pydantic_to_llm(ModelWithArrayConstraints)
+        result = pydantic_to_schellma(ModelWithArrayConstraints)
 
         assert "items: 1-10" in result
         assert "minItems: 1" in result
@@ -94,7 +94,7 @@ class TestConstraints:
             )
             rating: int = Field(ge=1, le=5, multiple_of=1, description="Rating")
 
-        result = pydantic_to_llm(ModelWithCombinedConstraints)
+        result = pydantic_to_schellma(ModelWithCombinedConstraints)
 
         assert "length: 3-20" in result
         assert "pattern: alphanumeric and underscore only" in result
@@ -110,7 +110,7 @@ class TestConstraints:
             )
             age: int = Field(default=0, ge=0, le=150, description="Age")
 
-        result = pydantic_to_llm(ModelWithConstraintsAndDefaults)
+        result = pydantic_to_schellma(ModelWithConstraintsAndDefaults)
 
         assert 'Name, default: "Anonymous", length: 1-50' in result
         assert "Age, default: 0, range: 0-150" in result
@@ -123,7 +123,7 @@ class TestConstraints:
             simple_int: int = Field(description="Simple integer")
             simple_array: list[str] = Field(description="Simple array")
 
-        result = pydantic_to_llm(ModelWithoutConstraints)
+        result = pydantic_to_schellma(ModelWithoutConstraints)
 
         # Should only have descriptions, no constraint info
         assert "Simple string" in result
@@ -142,7 +142,7 @@ class TestConstraints:
             constrained_int: int = Field(ge=0, le=100, description="Constrained int")
             simple_int: int = Field(description="Simple int")
 
-        result = pydantic_to_llm(MixedModel)
+        result = pydantic_to_schellma(MixedModel)
 
         assert "Constrained, minLength: 5" in result
         assert "Simple" in result and "Simple, minLength:" not in result
@@ -157,7 +157,7 @@ class TestConstraints:
             exclusive_max: float = Field(lt=100.0, description="Exclusive maximum")
             both_exclusive: float = Field(gt=0.0, lt=1.0, description="Both exclusive")
 
-        result = pydantic_to_llm(ModelWithExclusiveConstraints)
+        result = pydantic_to_schellma(ModelWithExclusiveConstraints)
 
         assert "exclusiveMinimum: 0.0" in result
         assert "exclusiveMaximum: 100.0" in result

@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field
 
-from schellma import pydantic_to_llm
+from schellma import pydantic_to_schellma
 
 
 class TestDefaultValues:
@@ -17,7 +17,7 @@ class TestDefaultValues:
             is_active: bool = Field(default=True, description="Active status")
             score: float = Field(default=0.0, description="User score")
 
-        result = pydantic_to_llm(ModelWithDefaults)
+        result = pydantic_to_schellma(ModelWithDefaults)
 
         assert 'default: "Anonymous"' in result
         assert "default: 0" in result
@@ -32,7 +32,7 @@ class TestDefaultValues:
                 default=None, description="Optional field"
             )
 
-        result = pydantic_to_llm(ModelWithNullDefaults)
+        result = pydantic_to_schellma(ModelWithNullDefaults)
 
         assert "default: null" in result
 
@@ -47,7 +47,7 @@ class TestDefaultValues:
             empty_list: list[int] = Field(default=[], description="Empty list")
             empty_dict: dict[str, str] = Field(default={}, description="Empty dict")
 
-        result = pydantic_to_llm(ModelWithComplexDefaults)
+        result = pydantic_to_schellma(ModelWithComplexDefaults)
 
         assert 'default: ["tag1", "tag2"]' in result
         assert 'default: { "theme": "dark", "lang": "en" }' in result
@@ -66,7 +66,7 @@ class TestDefaultValues:
                 description="Nested dict",
             )
 
-        result = pydantic_to_llm(ModelWithNestedDefaults)
+        result = pydantic_to_schellma(ModelWithNestedDefaults)
 
         assert 'default: [["a", "b"], ["c", "d"]]' in result
         assert (
@@ -81,7 +81,7 @@ class TestDefaultValues:
             field_with_both: str = Field(default="test", description="A test field")
             field_with_description_only: str = Field(description="Description only")
 
-        result = pydantic_to_llm(ModelWithBoth)
+        result = pydantic_to_schellma(ModelWithBoth)
 
         # Should have both description and default
         assert 'A test field, default: "test"' in result
@@ -95,7 +95,7 @@ class TestDefaultValues:
         class ModelWithDefaultOnly(BaseModel):
             field_with_default_only: str = Field(default="value")
 
-        result = pydantic_to_llm(ModelWithDefaultOnly)
+        result = pydantic_to_schellma(ModelWithDefaultOnly)
 
         assert 'default: "value"' in result
 
@@ -106,7 +106,7 @@ class TestDefaultValues:
             required_field: str = Field(description="Required field")
             another_field: int
 
-        result = pydantic_to_llm(ModelWithoutDefaults)
+        result = pydantic_to_schellma(ModelWithoutDefaults)
 
         assert "default:" not in result
         assert "Required field" in result
@@ -121,7 +121,7 @@ class TestDefaultValues:
             description_only: bool = Field(description="Only description")
             plain_field: float
 
-        result = pydantic_to_llm(MixedModel)
+        result = pydantic_to_schellma(MixedModel)
 
         assert 'Has default, default: "test"' in result
         assert "No default" in result and "No default, default:" not in result

@@ -888,7 +888,7 @@ def _create_indent_formatter(
     return property_indent, comment_prefix, property_template, close_brace
 
 
-def json_schema_to_llm(
+def json_schema_to_schellma(
     schema: dict, define_types: bool = True, indent: int | bool | None = DEFAULT_INDENT
 ) -> str:
     """Convert a JSON Schema to TypeScript-like type definition string.
@@ -912,7 +912,7 @@ def json_schema_to_llm(
     return converter.convert()
 
 
-def pydantic_to_llm(
+def pydantic_to_schellma(
     model_class: type[BaseModel],
     define_types: bool = False,
     indent: int | bool | None = DEFAULT_INDENT,
@@ -962,10 +962,10 @@ def pydantic_to_llm(
             f"Failed to generate JSON schema from model: {e}"
         ) from e
 
-    return json_schema_to_llm(schema, define_types, indent)
+    return json_schema_to_schellma(schema, define_types, indent)
 
 
-def to_llm(
+def schellma(
     obj: dict | type[BaseModel],
     define_types: bool = False,
     indent: int | bool | None = DEFAULT_INDENT,
@@ -988,8 +988,8 @@ def to_llm(
         CircularReferenceError: If circular references are detected
     """
     if isinstance(obj, type) and issubclass(obj, BaseModel):
-        return pydantic_to_llm(obj, define_types, indent)
+        return pydantic_to_schellma(obj, define_types, indent)
     elif isinstance(obj, dict):
-        return json_schema_to_llm(obj, define_types, indent)
+        return json_schema_to_schellma(obj, define_types, indent)
     else:
         raise InvalidSchemaError(f"Invalid object type: {type(obj).__name__}")

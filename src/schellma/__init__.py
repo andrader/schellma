@@ -28,7 +28,7 @@ When working with LLMs, you need clean, readable schemas that:
 
 ```python
 from pydantic import BaseModel
-from schellma import pydantic_to_llm
+from schellma import pydantic_to_schellma
 
 class User(BaseModel):
     name: str
@@ -36,7 +36,7 @@ class User(BaseModel):
     email: str | None = None
 
 # Generate clean schema for LLM prompts
-schema = pydantic_to_llm(User)
+schema = pydantic_to_schellma(User)
 print(schema)
 ```
 
@@ -52,14 +52,14 @@ Output:
 ## LLM Integration
 
 ```python
-from schellma import pydantic_to_llm
+from schellma import pydantic_to_schellma
 
 class TaskRequest(BaseModel):
     title: str
     priority: int
     tags: list[str]
 
-schema = pydantic_to_llm(TaskRequest)
+schema = pydantic_to_schellma(TaskRequest)
 
 prompt = f'''
 Please create a task with this structure:
@@ -73,7 +73,7 @@ Please create a task with this structure:
 ```python
 from schellma.exceptions import InvalidSchemaError, ConversionError
 try:
-    result = pydantic_to_llm(SomeModel)
+    result = pydantic_to_schellma(SomeModel)
 except InvalidSchemaError as e:
     print(f"Schema validation failed: {e}")
 except ConversionError as e:
@@ -82,12 +82,12 @@ except ConversionError as e:
 """
 
 from . import exceptions
-from .converters import json_schema_to_llm, pydantic_to_llm, to_llm
+from .converters import json_schema_to_schellma, pydantic_to_schellma, schellma
 
 __version__ = "0.2.0"
 __all__ = [
-    "json_schema_to_llm",
-    "pydantic_to_llm",
-    "to_llm",
+    "json_schema_to_schellma",
+    "pydantic_to_schellma",
+    "schellma",
     "exceptions",
 ]

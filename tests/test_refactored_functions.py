@@ -1,6 +1,6 @@
 """Test the refactored conversion functions."""
 
-from schellma import json_schema_to_llm
+from schellma import json_schema_to_schellma
 from tests._examples import NestedModel
 
 
@@ -10,19 +10,19 @@ class TestRefactoredFunctions:
     def test_string_type_conversion(self):
         """Test string type conversion."""
         schema = {"type": "string"}
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
         assert result == "string"
 
     def test_enum_conversion(self):
         """Test enum conversion."""
         schema = {"type": "string", "enum": ["option1", "option2", "option3"]}
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
         assert '"option1" | "option2" | "option3"' in result
 
     def test_array_conversion(self):
         """Test array conversion."""
         schema = {"type": "array", "items": {"type": "string"}}
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
         assert "string[]" in result
 
     def test_tuple_conversion(self):
@@ -31,7 +31,7 @@ class TestRefactoredFunctions:
             "type": "array",
             "prefixItems": [{"type": "string"}, {"type": "integer"}],
         }
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
         assert "[string, int]" in result
 
     def test_object_conversion(self):
@@ -40,32 +40,32 @@ class TestRefactoredFunctions:
             "type": "object",
             "properties": {"name": {"type": "string"}, "age": {"type": "integer"}},
         }
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
         assert '"name": string' in result
         assert '"age": int' in result
 
     def test_additional_properties_conversion(self):
         """Test additionalProperties conversion."""
         schema = {"type": "object", "additionalProperties": {"type": "string"}}
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
         assert "{ [key: string]: string }" in result
 
     def test_any_of_conversion(self):
         """Test anyOf conversion."""
         schema = {"anyOf": [{"type": "string"}, {"type": "integer"}]}
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
         assert "string | int" in result
 
     def test_nullable_conversion(self):
         """Test nullable type conversion."""
         schema = {"anyOf": [{"type": "string"}, {"type": "null"}]}
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
         assert "string | null" in result
 
     def test_one_of_conversion(self):
         """Test oneOf conversion."""
         schema = {"oneOf": [{"type": "string"}, {"type": "integer"}]}
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
         assert "string | int" in result
 
     def test_reference_conversion(self):
@@ -80,7 +80,7 @@ class TestRefactoredFunctions:
                 }
             },
         }
-        result = json_schema_to_llm(schema, define_types=True)
+        result = json_schema_to_schellma(schema, define_types=True)
         assert "NestedType" in result
         assert '"value": string' in result
 
@@ -101,16 +101,16 @@ class TestRefactoredFunctions:
                 }
             },
         }
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
         assert '"users": {' in result
         assert '"name": string' in result
         assert '"tags": string[]' in result
 
     def test_pydantic_model_still_works(self):
         """Test that Pydantic model conversion still works after refactoring."""
-        from schellma import pydantic_to_llm
+        from schellma import pydantic_to_schellma
 
-        result = pydantic_to_llm(NestedModel)
+        result = pydantic_to_schellma(NestedModel)
         assert "string" in result
         assert "int" in result
         assert '"text"' in result
@@ -134,7 +134,7 @@ class TestRefactoredFunctions:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Verify all expected parts are present
         assert '"id": int' in result

@@ -53,9 +53,9 @@ class InvalidSchemaError(ScheLLMaError):
         - Non-BaseModel classes passed to conversion functions
 
     Example:
-        >>> from schellma import json_schema_to_llm
+        >>> from schellma import json_schema_to_schellma
         >>> try:
-        ...     json_schema_to_llm({})  # Empty schema
+        ...     json_schema_to_schellma({})  # Empty schema
         ... except InvalidSchemaError as e:
         ...     print(f"Invalid schema: {e}")
     """
@@ -77,9 +77,9 @@ class ConversionError(ScheLLMaError):
         - Failed nested conversions
 
     Example:
-        >>> from schellma import json_schema_to_llm
+        >>> from schellma import json_schema_to_schellma
         >>> try:
-        ...     json_schema_to_llm({"properties": "invalid"})
+        ...     json_schema_to_schellma({"properties": "invalid"})
         ... except ConversionError as e:
         ...     print(f"Conversion failed: {e}")
     """
@@ -108,7 +108,7 @@ class CircularReferenceError(ScheLLMaError):
         ...     }
         ... }
         >>> try:
-        ...     json_schema_to_llm(schema, define_types=False)
+        ...     json_schema_to_schellma(schema, define_types=False)
         ... except CircularReferenceError as e:
         ...     print(f"Circular reference: {e}")
     """

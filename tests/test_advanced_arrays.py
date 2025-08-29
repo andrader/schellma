@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Comprehensive tests for advanced array types (contains, minContains/maxContains, tuples)."""
 
-from schellma import json_schema_to_llm
+from schellma import json_schema_to_schellma
 
 
 class TestAdvancedArrays:
@@ -20,7 +20,7 @@ class TestAdvancedArrays:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show contains constraint with pattern description
         assert "contains: string starting with 'required_'" in result
@@ -42,7 +42,7 @@ class TestAdvancedArrays:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show both contains pattern and count constraints
         assert "contains: string starting with 'tag:'" in result
@@ -60,7 +60,7 @@ class TestAdvancedArrays:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show contains with enum options
         assert 'contains: one of "active", "pending"' in result
@@ -74,7 +74,7 @@ class TestAdvancedArrays:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show contains with const value
         assert 'contains: "required"' in result
@@ -86,7 +86,7 @@ class TestAdvancedArrays:
             "properties": {"mixed": {"type": "array", "contains": {"type": "number"}}},
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should infer type from contains
         assert "number[]" in result
@@ -106,7 +106,7 @@ class TestAdvancedArrays:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show minContains constraint
         assert "minContains: 2" in result
@@ -125,7 +125,7 @@ class TestAdvancedArrays:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show maxContains constraint
         assert "maxContains: 5" in result
@@ -148,7 +148,7 @@ class TestAdvancedArrays:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show tuple with spread syntax for additional items
         assert "[number, number, ...number[]]" in result
@@ -166,7 +166,7 @@ class TestAdvancedArrays:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show strict tuple
         assert "[number, number]" in result
@@ -188,7 +188,7 @@ class TestAdvancedArrays:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show contains with pattern (fallback to showing pattern)
         assert "contains: string matching pattern" in result
@@ -211,7 +211,7 @@ class TestAdvancedArrays:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should show all constraints
         assert "items: 1-10" in result
@@ -231,7 +231,7 @@ class TestAdvancedArrays:
             },
         }
 
-        result = json_schema_to_llm(schema)
+        result = json_schema_to_schellma(schema)
 
         # Should fallback gracefully
         assert "any[]" in result
