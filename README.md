@@ -10,6 +10,12 @@ Converts Pydantic models/JSON Schemas to clean, simplified type definitions perf
 
 Unlike verbose JSON Schema formats, **scheLLMa** produces readable, concise type definitions that are ideal for language model interactions and structured output generation:
 
+- **🎨 Rich Default Values** - Automatically shows default values in human-readable comments
+- **📏 Smart Constraints** - Displays field constraints (length, range, patterns) in clear language
+- **✅ Clear Field Status** - Explicit required/optional marking with proper TypeScript syntax
+- **📚 Rich Examples** - Inline examples and documentation for better LLM understanding
+- **🔀 Advanced Union Types** - Full support for allOf, not constraints, and discriminated unions
+- **🔢 Advanced Arrays** - Contains constraints, minContains/maxContains, and enhanced tuple support
 - **Reduce token usage** - Concise format saves on API costs
 - **Minimize parsing errors** - Simple syntax is easier for models to parse, less verbose than JSON Schema, reducing confusion
 - **Stay readable** - Human-friendly format for prompt engineering
@@ -20,12 +26,12 @@ Unlike verbose JSON Schema formats, **scheLLMa** produces readable, concise type
 
     ```python
     from pydantic import BaseModel, Field
-    from schellma import to_llm
+    from schellma import pydantic_to_llm
 
     class User(BaseModel):
-        name: str = Field(..., description="The name of the user")
-        age: int
-        email: str | None = None
+        name: str = Field(default="Anonymous", description="The name of the user")
+        age: int = Field(ge=0, le=150, description="User age in years")
+        email: str | None = Field(None, examples=["user@example.com"])
     ```
 
 !!! quote "JSON Schema"
@@ -47,9 +53,11 @@ Unlike verbose JSON Schema formats, **scheLLMa** produces readable, concise type
 
     ```typescript
     {
-        // The name of the user
+        // The name of the user, default: "Anonymous", optional
         "name": string,
+        // User age in years, range: 0-150, required
         "age": int,
+        // default: null, example: "user@example.com", optional
         "email": string | null,
     }
     ```
