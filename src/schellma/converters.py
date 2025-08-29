@@ -1,5 +1,7 @@
 """JSON Schema to TypeScript conversion utilities."""
 
+from typing import Any
+
 from pydantic import BaseModel
 
 from .constants import (
@@ -128,6 +130,7 @@ class SchemaConverter:
 
         lines = [f"{def_name} {{"]
         properties = def_schema.get("properties", {})
+        required_fields = set(def_schema.get("required", []))
 
         if not isinstance(properties, dict):
             raise ConversionError(
@@ -140,11 +143,40 @@ class SchemaConverter:
                     f"Property name must be a string, got {type(prop_name).__name__}"
                 )
 
-            # Add description as comment if available
+            # Build comment with description and default value
+            comment_parts = []
+
+            # Add description if available
             if "description" in prop_schema and isinstance(
                 prop_schema["description"], str
             ):
-                lines.append(f"{comment_prefix}{prop_schema['description']}")
+                comment_parts.append(prop_schema["description"])
+
+            # Add default value if available
+            if "default" in prop_schema:
+                default_value = self._format_default_value(prop_schema["default"])
+                comment_parts.append(f"default: {default_value}")
+
+            # Add constraints if available
+            constraints = self._format_constraints(prop_schema)
+            if constraints:
+                comment_parts.extend(constraints)
+
+            # Add examples if available
+            examples = self._format_examples(prop_schema)
+            if examples:
+                comment_parts.append(examples)
+
+            # Add required/optional status
+            is_required = prop_name in required_fields
+            if is_required:
+                comment_parts.append("required")
+            else:
+                comment_parts.append("optional")
+
+            # Add combined comment if we have any parts
+            if comment_parts:
+                lines.append(f"{comment_prefix}{', '.join(comment_parts)}")
 
             # Convert type
             prop_type = self._convert_json_schema_type(prop_schema, 2)
@@ -343,6 +375,7 @@ class SchemaConverter:
 
         lines = [OBJECT_OPEN_BRACE]
         properties = obj_schema.get("properties", {})
+        required_fields = set(obj_schema.get("required", []))
 
         if not isinstance(properties, dict):
             raise ConversionError("properties must be a dictionary")
@@ -358,11 +391,40 @@ class SchemaConverter:
                     f"Property schema for '{prop_name}' must be a dictionary"
                 )
 
-            # Add description as comment if available
+            # Build comment with description and default value
+            comment_parts = []
+
+            # Add description if available
             if "description" in prop_schema:
                 description = prop_schema["description"]
                 if isinstance(description, str):
-                    lines.append(f"{comment_prefix}{description}")
+                    comment_parts.append(description)
+
+            # Add default value if available
+            if "default" in prop_schema:
+                default_value = self._format_default_value(prop_schema["default"])
+                comment_parts.append(f"default: {default_value}")
+
+            # Add constraints if available
+            constraints = self._format_constraints(prop_schema)
+            if constraints:
+                comment_parts.extend(constraints)
+
+            # Add examples if available
+            examples = self._format_examples(prop_schema)
+            if examples:
+                comment_parts.append(examples)
+
+            # Add required/optional status
+            is_required = prop_name in required_fields
+            if is_required:
+                comment_parts.append("required")
+            else:
+                comment_parts.append("optional")
+
+            # Add combined comment if we have any parts
+            if comment_parts:
+                lines.append(f"{comment_prefix}{', '.join(comment_parts)}")
 
             # Convert type
             try:
@@ -401,6 +463,188 @@ class SchemaConverter:
                     ) from e
 
         raise ConversionError(f"Definition '{def_name}' not found in schema")
+
+    def _format_default_value(self, default_value: Any) -> str:
+        """Format default value for human-readable display in comments.
+
+        Args:
+            default_value: The default value from the JSON schema
+
+        Returns:
+            A formatted string representation of the default value
+        """
+        if default_value is None:
+            return "null"
+        elif isinstance(default_value, bool):
+            return "true" if default_value else "false"
+        elif isinstance(default_value, str):
+            return f'"{default_value}"'
+        elif isinstance(default_value, int | float):
+            return str(default_value)
+        elif isinstance(default_value, list):
+            if not default_value:
+                return "[]"
+            # Format list items
+            formatted_items = [
+                self._format_default_value(item) for item in default_value
+            ]
+            return f"[{', '.join(formatted_items)}]"
+        elif isinstance(default_value, dict):
+            if not default_value:
+                return "{}"
+            # Format dict items
+            formatted_items = [
+                f'"{key}": {self._format_default_value(value)}'
+                for key, value in default_value.items()
+            ]
+            return f"{{ {', '.join(formatted_items)} }}"
+        else:
+            # Fallback for other types
+            return str(default_value)
+
+    def _format_constraints(self, schema: dict) -> list[str]:
+        """Format field constraints for human-readable display in comments.
+
+        Args:
+            schema: The property schema dictionary
+
+        Returns:
+            A list of formatted constraint strings
+        """
+        constraints = []
+
+        # Handle anyOf/oneOf unions (like nullable types with constraints)
+        if "anyOf" in schema:
+            # Look for constraints in the non-null type
+            for any_of_item in schema["anyOf"]:
+                if any_of_item.get("type") != "null":
+                    # Recursively get constraints from the non-null type
+                    sub_constraints = self._format_constraints(any_of_item)
+                    constraints.extend(sub_constraints)
+            return constraints
+        elif "oneOf" in schema:
+            # Similar handling for oneOf
+            for one_of_item in schema["oneOf"]:
+                if one_of_item.get("type") != "null":
+                    sub_constraints = self._format_constraints(one_of_item)
+                    constraints.extend(sub_constraints)
+            return constraints
+
+        # String constraints
+        if schema.get("type") == "string":
+            # Length constraints
+            if "minLength" in schema and "maxLength" in schema:
+                constraints.append(
+                    f"length: {schema['minLength']}-{schema['maxLength']}"
+                )
+            elif "minLength" in schema:
+                constraints.append(f"minLength: {schema['minLength']}")
+            elif "maxLength" in schema:
+                constraints.append(f"maxLength: {schema['maxLength']}")
+
+            # Pattern constraint
+            if "pattern" in schema:
+                pattern = schema["pattern"]
+                # Try to make common patterns more readable
+                if pattern == r"^[^@]+@[^@]+\.[^@]+$":
+                    constraints.append("format: email")
+                elif pattern == r"^\+?1?\d{9,15}$":
+                    constraints.append("format: phone")
+                elif pattern == r"^[a-zA-Z0-9_]+$":
+                    constraints.append("pattern: alphanumeric and underscore only")
+                else:
+                    constraints.append(f"pattern: {pattern}")
+
+        # Numeric constraints (integer and number)
+        elif schema.get("type") in ["integer", "number"]:
+            # Range constraints
+            if "minimum" in schema and "maximum" in schema:
+                constraints.append(f"range: {schema['minimum']}-{schema['maximum']}")
+            elif "minimum" in schema:
+                constraints.append(f"minimum: {schema['minimum']}")
+            elif "maximum" in schema:
+                constraints.append(f"maximum: {schema['maximum']}")
+
+            # Exclusive constraints (gt/lt in Pydantic become exclusiveMinimum/exclusiveMaximum)
+            if "exclusiveMinimum" in schema:
+                constraints.append(f"exclusiveMinimum: {schema['exclusiveMinimum']}")
+            if "exclusiveMaximum" in schema:
+                constraints.append(f"exclusiveMaximum: {schema['exclusiveMaximum']}")
+
+            # Multiple constraint
+            if "multipleOf" in schema:
+                multiple = schema["multipleOf"]
+                if multiple == 0.05:
+                    constraints.append("multipleOf: 0.05 (5% increments)")
+                elif multiple == 1:
+                    constraints.append("multipleOf: 1 (integers only)")
+                else:
+                    constraints.append(f"multipleOf: {multiple}")
+
+        # Array constraints
+        elif schema.get("type") == "array":
+            # Item count constraints
+            if "minItems" in schema and "maxItems" in schema:
+                constraints.append(f"items: {schema['minItems']}-{schema['maxItems']}")
+            elif "minItems" in schema:
+                constraints.append(f"minItems: {schema['minItems']}")
+            elif "maxItems" in schema:
+                constraints.append(f"maxItems: {schema['maxItems']}")
+
+            # Unique items constraint
+            if schema.get("uniqueItems"):
+                constraints.append("uniqueItems: true")
+
+        return constraints
+
+    def _format_examples(self, schema: dict) -> str:
+        """Format examples for human-readable display in comments.
+
+        Args:
+            schema: The property schema dictionary
+
+        Returns:
+            A formatted string representation of examples, or empty string if none
+        """
+        # Handle anyOf/oneOf unions (like nullable types with examples)
+        if "anyOf" in schema:
+            # Look for examples in the non-null type
+            for any_of_item in schema["anyOf"]:
+                if any_of_item.get("type") != "null":
+                    examples = self._format_examples(any_of_item)
+                    if examples:
+                        return examples
+        elif "oneOf" in schema:
+            # Similar handling for oneOf
+            for one_of_item in schema["oneOf"]:
+                if one_of_item.get("type") != "null":
+                    examples = self._format_examples(one_of_item)
+                    if examples:
+                        return examples
+
+        # Check for examples at the current level
+        if "examples" not in schema:
+            return ""
+
+        examples_list = schema["examples"]
+        if not isinstance(examples_list, list) or not examples_list:
+            return ""
+
+        # Format examples based on type and quantity
+        if len(examples_list) == 1:
+            # Single example
+            formatted_example = self._format_default_value(examples_list[0])
+            return f"example: {formatted_example}"
+        else:
+            # Multiple examples - show first few
+            max_examples = 3  # Limit to avoid overly long comments
+            formatted_examples = [
+                self._format_default_value(ex) for ex in examples_list[:max_examples]
+            ]
+            examples_str = ", ".join(formatted_examples)
+            if len(examples_list) > max_examples:
+                examples_str += ", ..."
+            return f"examples: {examples_str}"
 
 
 def _create_indent_formatter(
