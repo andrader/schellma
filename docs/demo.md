@@ -22,7 +22,7 @@ This demonstrates ALL implemented features for LLM integration
 - Human-readable comments improve prompt engineering
 
 
-## 1. Default Values Support
+## Default Values Support
 
 Shows default values in human-readable comments for better LLM understanding
 ```python
@@ -54,7 +54,7 @@ class UserProfile(BaseModel):
 }
 ```
 
-## 2. Field Constraints with Human-Readable Comments
+## Field Constraints with Human-Readable Comments
 
 Displays string, numeric, and array constraints in clear, readable format
 ```python
@@ -99,7 +99,7 @@ class ProductModel(BaseModel):
 }
 ```
 
-## 3a. Discriminated Union Types
+## Discriminated Union Types
 
 Shows discriminated unions with clear type indicators
 ```python
@@ -134,7 +134,7 @@ User {
 }
 ```
 
-## 3b. Inheritance (allOf-like behavior)
+## Inheritance (allOf-like behavior)
 
 Demonstrates inheritance patterns that work like allOf intersections
 ```python
@@ -156,7 +156,7 @@ class ExtendedUser(BaseEntity):
 }
 ```
 
-## 3c. allOf Intersection Types
+## allOf Intersection Types
 
 Direct allOf schema merging with intersection comments
 ```json
@@ -216,7 +216,7 @@ Direct allOf schema merging with intersection comments
 }
 ```
 
-## 3d. NOT Constraints
+## NOT Constraints
 
 Exclusion constraints with human-readable descriptions
 ```json
@@ -244,7 +244,7 @@ Exclusion constraints with human-readable descriptions
 }
 ```
 
-## 4. Required vs Optional Fields Clarity
+## Required vs Optional Fields Clarity
 
 Clear distinction between required and optional fields with proper marking
 ```python
@@ -279,7 +279,7 @@ class RegistrationForm(BaseModel):
 }
 ```
 
-## 5. Examples and Documentation Support
+## Examples and Documentation Support
 
 Rich examples that help LLMs understand expected data patterns
 ```python
@@ -323,7 +323,7 @@ class APIRequest(BaseModel):
 }
 ```
 
-## 6a. Advanced Array Types - Contains Constraints
+## Advanced Array Types - Contains Constraints
 
 Arrays with contains constraints and count limitations
 ```json
@@ -353,7 +353,7 @@ Arrays with contains constraints and count limitations
 }
 ```
 
-## 6b. Advanced Array Types - Enhanced Tuples
+## Advanced Array Types - Enhanced Tuples
 
 Tuples with additional items and descriptive constraints
 ```json
@@ -389,7 +389,7 @@ Tuples with additional items and descriptive constraints
 }
 ```
 
-## 7. Comprehensive User Model
+## Comprehensive User Model
 
 A comprehensive model showcasing all implemented features
 ```python
