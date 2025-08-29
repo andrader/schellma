@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Complete Roadmap Features Demonstration
+Features Demonstration
 
-This script demonstrates ALL implemented roadmap features:
+This script demonstrates ALL implemented features:
 1. ✅ Default Values Support
 2. ✅ Field Constraints with Human-Readable Comments
 3. ✅ Advanced Union Types with Clear Descriptions
@@ -234,7 +234,7 @@ advanced_array_schemas = {
 
 
 class ComprehensiveUserModel(BaseModel):
-    """A comprehensive model showcasing all implemented roadmap features."""
+    """A comprehensive model showcasing all implemented features."""
 
     # Required fields with constraints and examples
     username: str = Field(
@@ -325,10 +325,10 @@ class ComprehensiveUserModel(BaseModel):
 
 
 def main() -> None:
-    logger.info("Demonstrating complete roadmap features")
+    logger.info("Demonstrating complete features")
     texts = [
-        "# 🎯 scheLLMa Complete Roadmap Features Demonstration",
-        "This demonstrates ALL implemented roadmap features for LLM integration",
+        "# 🎯 scheLLMa Complete Features Demonstration",
+        "This demonstrates ALL implemented features for LLM integration",
         """## 🌟 Key Features
 
 - Default values shown in human-readable format
@@ -411,7 +411,7 @@ def main() -> None:
         demonstrate_feature(
             "7. Comprehensive User Model",
             ComprehensiveUserModel,
-            "A comprehensive model showcasing all implemented roadmap features",
+            "A comprehensive model showcasing all implemented features",
         ),
     ]
 
