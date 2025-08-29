@@ -16,34 +16,40 @@ Unlike verbose JSON Schema formats, **scheLLMa** produces readable, concise type
 
 <div class="grid" markdown>
 
-!!! note "Pydantic"
 
-    ```python
-    from pydantic import BaseModel, Field
-    from schellma import pydantic_to_schellma
+!!! note ""
+    === "Pydantic"
 
-    class User(BaseModel):
-        name: str = Field(default="Anonymous", description="The name of the user")
-        age: int = Field(ge=0, le=150, description="User age in years")
-        email: str | None = Field(None, examples=["user@example.com"])
-    ```
 
-!!! quote "JSON Schema"
+        ```python
+        from pydantic import BaseModel, Field
+        from schellma import schellma
 
-    ```json
-    {
-    "type": "object",
-    "properties": {
-        "name": { "type": "string", "description": "The name of the user" },
-        "age": { "type": "integer" },
-        "email": { "type": ["string", "null"], "default": null }
-    },
-    "required": ["name", "age"],
-    "additionalProperties": false
-    }
-    ```
+        class User(BaseModel):
+            name: str = Field(default="Anonymous", description="The name of the user")
+            age: int = Field(ge=0, le=150, description="User age in years")
+            email: str | None = Field(None, examples=["user@example.com"])
+        ```
+
+    === "JSON Schema"
+
+        ```json
+        {
+        "type": "object",
+        "properties": {
+            "name": { "type": "string", "description": "The name of the user" },
+            "age": { "type": "integer" },
+            "email": { "type": ["string", "null"], "default": null }
+        },
+        "required": ["name", "age"],
+        "additionalProperties": false
+        }
+        ```
+
 
 !!! tip "ScheLLMa"
+
+
 
     ```typescript
     {
@@ -55,6 +61,11 @@ Unlike verbose JSON Schema formats, **scheLLMa** produces readable, concise type
         "email": string | null,
     }
     ```
+
+
+    
+
+
 
 </div>
 
@@ -80,7 +91,7 @@ Unlike verbose JSON Schema formats, **scheLLMa** produces readable, concise type
 
 ## Quick Start
 
-### Basic Usage
+
 
 ```python
 from pydantic import BaseModel
@@ -106,6 +117,8 @@ Output:
 }
 ```
 
+View the [demo](demo.md) for more examples.
+
 ## Installation
 
 ```bash
@@ -118,14 +131,14 @@ Or using uv:
 uv add schellma
 ```
 
-### Install from github
+Install from github
 
 ```bash
 uv add git+https://github.com/andrader/schellma.git
 ```
 
 
-### LLM Prompt Integration
+## LLM Prompt Integration
 
 ```python
 from pydantic import BaseModel
@@ -344,15 +357,7 @@ result = schellma(User, indent=False)
 # Output: {"name": string,"age": int,}
 ```
 
-### CLI Usage
 
-scheLLMa includes a simple CLI for quick testing:
-
-```bash
-python -m schellma
-```
-
-This will show a comprehensive example of all supported types.
 
 ## LLM Integration Examples
 
