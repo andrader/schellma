@@ -20,7 +20,7 @@ print(TS_TYPE_MAPPINGS["string"])
 # JSON Schema reference patterns
 DEFS_PREFIX = "#/$defs/"
 
-# TypeScript type mappings
+# ScheLLMa type mappings
 TS_TYPE_MAPPINGS = {
     "string": "string",
     "integer": "int",
@@ -28,7 +28,7 @@ TS_TYPE_MAPPINGS = {
     "boolean": "boolean",
 }
 
-# TypeScript template strings
+# ScheLLMa template strings
 TS_ARRAY_TEMPLATE = "{type}[]"
 TS_TUPLE_TEMPLATE = "[{types}]"
 TS_INDEX_SIGNATURE_TEMPLATE = "{{ [key: string]: {type} }}"

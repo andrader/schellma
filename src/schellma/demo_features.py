@@ -26,7 +26,7 @@ setup_logging()
 
 PYTHON_CODE = "```python\n{code}\n```"
 JSON_CODE = "```json\n{code}\n```"
-TYPESCRIPT_CODE = "```typescript\n{code}\n```"
+SCHELLMA_CODE = "```typescript\n{code}\n```"
 
 
 def demonstrate_feature(title: str, model_or_schema: Any, description: str) -> str:
@@ -49,7 +49,7 @@ def demonstrate_feature(title: str, model_or_schema: Any, description: str) -> s
         text.append(JSON_CODE.format(code=json_str))
 
     code = schellma(model_or_schema, define_types=True)
-    text.append(TYPESCRIPT_CODE.format(code=code))
+    text.append(SCHELLMA_CODE.format(code=code))
 
     md = "\n".join(text)
     return md

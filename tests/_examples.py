@@ -5,7 +5,7 @@ the full range of type conversions supported by schellma.
 
 These models are primarily used for testing and demonstration
 purposes, showing how different Python/Pydantic types are
-converted to TypeScript-like type definitions.
+converted to ScheLLMa type definitions.
 
 ## Example
 
@@ -69,7 +69,7 @@ class ComprehensiveTest(BaseModel):
     """Comprehensive test model demonstrating all supported type conversions.
 
     This model includes examples of every type that schellma can convert
-    from Pydantic models to TypeScript-like type definitions, including:
+    from Pydantic models to ScheLLMa type definitions, including:
 
     - Basic primitive types (str, int, bool, etc.)
     - Date/time types (datetime, date, time)

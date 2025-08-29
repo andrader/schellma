@@ -270,7 +270,7 @@ class TestComprehensiveCoverage:
 
         result = pydantic_to_schellma(ConstrainedModel)
 
-        # Constraints should not affect TypeScript output, but descriptions should be present
+        # Constraints should not affect ScheLLMa output, but descriptions should be present
         assert "// Name with constraints" in result
         assert "// Age with range" in result
         assert "// Email with pattern" in result

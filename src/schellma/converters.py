@@ -1,4 +1,4 @@
-"""JSON Schema to TypeScript conversion utilities."""
+"""JSON Schema to ScheLLMa conversion utilities."""
 
 from typing import Any
 
@@ -29,7 +29,7 @@ logger = get_logger()
 
 
 class SchemaConverter:
-    """Converts JSON Schema to TypeScript-like type definitions."""
+    """Converts JSON Schema to ScheLLMa type definitions."""
 
     def __init__(
         self,
@@ -52,10 +52,10 @@ class SchemaConverter:
         self.ref_stack: set[str] = set()
 
     def convert(self) -> str:
-        """Convert the schema to TypeScript-like type definition.
+        """Convert the schema to ScheLLMa type definition.
 
         Returns:
-            A string representation of the TypeScript-like type definition
+            A string representation of the ScheLLMa type definition
 
         Raises:
             InvalidSchemaError: If the schema is invalid or malformed
@@ -63,7 +63,7 @@ class SchemaConverter:
             CircularReferenceError: If circular references are detected
         """
         logger.debug(
-            f"Converting JSON schema to TypeScript (define_types={self.define_types}, indent={self.indent})"
+            f"Converting JSON schema to ScheLLMa (define_types={self.define_types}, indent={self.indent})"
         )
 
         if not isinstance(self.schema, dict):
@@ -287,7 +287,7 @@ class SchemaConverter:
         return TS_OBJECT_TYPE
 
     def _convert_additional_properties(self, json_type: dict, level: int = 1) -> str:
-        """Convert additionalProperties to TypeScript index signature."""
+        """Convert additionalProperties to ScheLLMa index signature."""
         additional_props = json_type["additionalProperties"]
         if additional_props is True:
             return TS_INDEX_SIGNATURE_ANY
@@ -325,7 +325,7 @@ class SchemaConverter:
         return TS_ANY_TYPE
 
     def _convert_any_of(self, any_of_list: list, level: int = 1) -> str:
-        """Convert anyOf to TypeScript union type."""
+        """Convert anyOf to ScheLLMa union type."""
         if not isinstance(any_of_list, list):
             raise ConversionError("anyOf must be a list")
 
@@ -352,7 +352,7 @@ class SchemaConverter:
     def _convert_one_of(
         self, one_of_list: list, level: int = 1, discriminator: dict | None = None
     ) -> str:
-        """Convert oneOf to TypeScript union type with optional discriminator support."""
+        """Convert oneOf to ScheLLMa union type with optional discriminator support."""
         if not isinstance(one_of_list, list):
             raise ConversionError("oneOf must be a list")
 
@@ -385,7 +385,7 @@ class SchemaConverter:
             raise ConversionError(f"Failed to convert oneOf: {e}") from e
 
     def _convert_all_of(self, all_of_list: list, level: int = 1) -> str:
-        """Convert allOf to TypeScript intersection-like type."""
+        """Convert allOf to ScheLLMa intersection-like type."""
         if not isinstance(all_of_list, list):
             raise ConversionError("allOf must be a list")
 
@@ -434,7 +434,7 @@ class SchemaConverter:
             raise ConversionError(f"Failed to convert allOf: {e}") from e
 
     def _convert_json_schema_type(self, json_type: dict, level: int = 1) -> str:
-        """Convert a JSON Schema type to TypeScript type."""
+        """Convert a JSON Schema type to ScheLLMa type."""
         if not isinstance(json_type, dict):
             raise ConversionError(
                 f"Type definition must be a dictionary, got {type(json_type).__name__}"
@@ -469,7 +469,7 @@ class SchemaConverter:
         return TS_ANY_TYPE
 
     def _convert_object_properties(self, obj_schema: dict, level: int = 1) -> str:
-        """Convert object properties to TypeScript object type."""
+        """Convert object properties to ScheLLMa object type."""
         if not isinstance(obj_schema, dict):
             raise ConversionError(
                 f"Object schema must be a dictionary, got {type(obj_schema).__name__}"
@@ -891,7 +891,7 @@ def _create_indent_formatter(
 def json_schema_to_schellma(
     schema: dict, define_types: bool = True, indent: int | bool | None = DEFAULT_INDENT
 ) -> str:
-    """Convert a JSON Schema to TypeScript-like type definition string.
+    """Convert a JSON Schema to ScheLLMa type definition string.
 
     Args:
         schema: JSON Schema dictionary from model.model_json_schema()
@@ -901,7 +901,7 @@ def json_schema_to_schellma(
             - int: Number of spaces per indentation level (default: 2)
 
     Returns:
-        A string representation of the TypeScript-like type definition
+        A string representation of the ScheLLMa type definition
 
     Raises:
         InvalidSchemaError: If the schema is invalid or malformed
@@ -917,7 +917,7 @@ def pydantic_to_schellma(
     define_types: bool = False,
     indent: int | bool | None = DEFAULT_INDENT,
 ) -> str:
-    """Convert a Pydantic model to a TypeScript-like type definition string.
+    """Convert a Pydantic model to a ScheLLMa type definition string.
 
     Args:
         model_class: A Pydantic BaseModel class
@@ -927,7 +927,7 @@ def pydantic_to_schellma(
             - int: Number of spaces per indentation level (default: 2)
 
     Returns:
-        A string representation of the TypeScript-like type definition
+        A string representation of the ScheLLMa type definition
 
     Raises:
         InvalidSchemaError: If the model is invalid
@@ -935,7 +935,7 @@ def pydantic_to_schellma(
         CircularReferenceError: If circular references are detected
     """
     logger.debug(
-        f"Converting Pydantic model {getattr(model_class, '__name__', str(model_class))} to TypeScript"
+        f"Converting Pydantic model {getattr(model_class, '__name__', str(model_class))} to ScheLLMa"
     )
 
     if not isinstance(model_class, type):
@@ -970,7 +970,7 @@ def schellma(
     define_types: bool = False,
     indent: int | bool | None = DEFAULT_INDENT,
 ) -> str:
-    """Convert a JSON Schema dictionary or Pydantic model to a TypeScript-like type definition string.
+    """Convert a JSON Schema dictionary or Pydantic model to a ScheLLMa type definition string.
 
     Args:
         obj: A JSON Schema dictionary or Pydantic model
@@ -980,7 +980,7 @@ def schellma(
             - int: Number of spaces per indentation level (default: 2)
 
     Returns:
-        A string representation of the TypeScript-like type definition
+        A string representation of the ScheLLMa type definition
 
     Raises:
         InvalidSchemaError: If the model is invalid

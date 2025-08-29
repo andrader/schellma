@@ -64,7 +64,7 @@ class InvalidSchemaError(ScheLLMaError):
 
 
 class ConversionError(ScheLLMaError):
-    """Raised when conversion from JSON schema to TypeScript fails.
+    """Raised when conversion from JSON schema to ScheLLMa fails.
 
     This exception is raised when the conversion process encounters
     an error that prevents successful type generation, such as

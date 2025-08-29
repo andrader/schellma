@@ -224,7 +224,7 @@ interface SearchResults {
 1. **🎨 Rich Default Values** - Automatically extracts and displays default values from Pydantic models
 2. **📏 Smart Constraints** - Human-readable constraint descriptions for strings, numbers, and arrays
 3. **🔀 Advanced Union Types** - Full support for allOf, not constraints, and discriminated unions
-4. **✅ Clear Field Status** - Explicit required/optional field marking with proper TypeScript syntax
+4. **✅ Clear Field Status** - Explicit required/optional field marking with proper ScheLLMa syntax
 5. **📚 Rich Examples** - Inline examples and documentation for better LLM understanding
 6. **🔢 Advanced Arrays** - Contains constraints, minContains/maxContains, and enhanced tuple support
 
@@ -232,7 +232,7 @@ interface SearchResults {
 
 - **Better Understanding**: Human-readable comments help LLMs understand schema constraints
 - **Accurate Generation**: Clear examples and defaults guide LLM output generation
-- **Type Safety**: Proper TypeScript-like syntax ensures type-aware responses
+- **Type Safety**: Proper ScheLLMa syntax ensures type-aware responses
 - **Comprehensive Coverage**: All JSON Schema features now supported with readable formatting
 
 ### 🛠️ Try It Out
@@ -246,5 +246,5 @@ schema = pydantic_to_schellma(UserProfile)
 print(schema)
 ```
 
-**scheLLMa is now the most comprehensive Pydantic-to-TypeScript converter optimized for LLM integration!**
+**scheLLMa is now the most comprehensive Pydantic-to-ScheLLMa converter optimized for LLM integration!**
 
