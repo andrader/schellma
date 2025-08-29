@@ -88,6 +88,11 @@ markdown_extensions:
       alternate_style: true
   - pymdownx.arithmatex:
       generic: true
+
+
+hooks:
+  - "src/schellma/demo_features.py"
+
 plugins:
   # material built-in plugins
   - search: # enable search
@@ -123,3 +128,4 @@ plugins:
       on_implicit_namespace_package: "skip"
 
   - awesome-nav
+
