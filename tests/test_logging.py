@@ -3,7 +3,7 @@
 import logging
 from io import StringIO
 
-from schellma.logging import disable_logging, get_logger, setup_logging
+from schellma.logger import disable_logging, get_logger, setup_logging
 
 
 class TestLogging:

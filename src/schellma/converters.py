@@ -23,7 +23,7 @@ from .constants import (
     TS_UNION_SEPARATOR,
 )
 from .exceptions import CircularReferenceError, ConversionError, InvalidSchemaError
-from .logging import get_logger
+from .logger import get_logger
 
 logger = get_logger()
 
