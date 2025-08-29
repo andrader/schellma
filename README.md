@@ -10,12 +10,6 @@ Converts Pydantic models/JSON Schemas to clean, simplified type definitions perf
 
 Unlike verbose JSON Schema formats, **scheLLMa** produces readable, concise type definitions that are ideal for language model interactions and structured output generation:
 
-- **🎨 Rich Default Values** - Automatically shows default values in human-readable comments
-- **📏 Smart Constraints** - Displays field constraints (length, range, patterns) in clear language
-- **✅ Clear Field Status** - Explicit required/optional marking with proper TypeScript syntax
-- **📚 Rich Examples** - Inline examples and documentation for better LLM understanding
-- **🔀 Advanced Union Types** - Full support for allOf, not constraints, and discriminated unions
-- **🔢 Advanced Arrays** - Contains constraints, minContains/maxContains, and enhanced tuple support
 - **Reduce token usage** - Concise format saves on API costs
 - **Minimize parsing errors** - Simple syntax is easier for models to parse, less verbose than JSON Schema, reducing confusion
 - **Stay readable** - Human-friendly format for prompt engineering
@@ -73,10 +67,15 @@ Unlike verbose JSON Schema formats, **scheLLMa** produces readable, concise type
 - 🤖 **Optimized for LLM prompts** - Clean, readable type definitions
 - 💰 **Token-efficient** - Reduces LLM API costs
 - 🎯 **Support for all common Python types** (str, int, bool, datetime, etc.)
-- 🏗️ **Handle complex nested structures and collections**
-- 🔗 **Support for enums, optional types, and unions**
-- ⚙️ **Customizable output formatting**
-
+- 🏗️ **Handle complex nested structures and collections** - Strong support for Pydantic model types
+- 🔗 **Support for enums, optional types, and unions** - Properly extract and display union types
+- ⚙️ **Customizable output formatting** - Indentation, compact mode, and more
+- 🎨 **Rich Default Values** - Automatically shows default values in human-readable comments
+- 📏 **Smart Constraints** - Displays field constraints (length, range, patterns) in clear language
+- ✅ **Clear Field Status** - Explicit required/optional marking
+- 📚 **Rich Examples** - Inline examples and documentation for better LLM understanding
+- 🔀 **Advanced Union Types** - Full support for allOf, not constraints, and discriminated unions
+- 🔢 **Advanced Arrays** - Contains constraints, minContains/maxContains, and enhanced tuple support
 
 
 ## Quick Start
