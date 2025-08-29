@@ -1,4 +1,4 @@
-"""# Constants for scheLLMa package.
+"""Constants for scheLLMa package.
 
 This module contains all the constants used throughout scheLLMa
 for consistent formatting and type conversion.
