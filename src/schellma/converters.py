@@ -225,7 +225,8 @@ class SchemaConverter:
         return TS_TYPE_MAPPINGS["string"]
 
     def _convert_array_type(self, json_type: dict, level: int = 1) -> str:
-        """Convert array type, handling tuples and regular arrays."""
+        """Convert array type, handling tuples, regular arrays, and contains constraints."""
+        # Handle tuple types with prefixItems
         if "prefixItems" in json_type:
             prefix_items = json_type["prefixItems"]
             if not isinstance(prefix_items, list):
@@ -235,15 +236,39 @@ class SchemaConverter:
                 prefix_types = [
                     self._convert_json_schema_type(item, level) for item in prefix_items
                 ]
-                return TS_TUPLE_TEMPLATE.format(types=", ".join(prefix_types))
+
+                # Check if there are additional items allowed
+                if "items" in json_type:
+                    additional_type = self._convert_json_schema_type(
+                        json_type["items"], level
+                    )
+                    # For tuples with additional items, show as tuple with spread
+                    tuple_base = TS_TUPLE_TEMPLATE.format(types=", ".join(prefix_types))
+                    return f"{tuple_base[:-1]}, ...{additional_type}[]]"
+                else:
+                    return TS_TUPLE_TEMPLATE.format(types=", ".join(prefix_types))
             except Exception as e:
                 raise ConversionError(f"Failed to convert tuple items: {e}") from e
+
+        # Handle regular arrays with items
         elif "items" in json_type:
             try:
                 item_type = self._convert_json_schema_type(json_type["items"], level)
                 return TS_ARRAY_TEMPLATE.format(type=item_type)
             except Exception as e:
                 raise ConversionError(f"Failed to convert array items: {e}") from e
+
+        # Handle arrays with contains constraint but no items
+        elif "contains" in json_type:
+            try:
+                contains_type = self._convert_json_schema_type(
+                    json_type["contains"], level
+                )
+                return TS_ARRAY_TEMPLATE.format(type=contains_type)
+            except Exception:
+                # Fallback to any[] if contains conversion fails
+                return TS_ANY_ARRAY_TYPE
+
         return TS_ANY_ARRAY_TYPE
 
     def _convert_object_type(self, json_type: dict, level: int = 1) -> str:
@@ -287,11 +312,16 @@ class SchemaConverter:
             )
 
     def _convert_union_types(self, json_type: dict, level: int = 1) -> str:
-        """Convert anyOf, oneOf union types."""
+        """Convert anyOf, oneOf, allOf union types."""
         if "anyOf" in json_type:
             return self._convert_any_of(json_type["anyOf"], level)
         elif "oneOf" in json_type:
-            return self._convert_one_of(json_type["oneOf"], level)
+            discriminator = json_type.get("discriminator")
+            if discriminator is not None and not isinstance(discriminator, dict):
+                discriminator = None
+            return self._convert_one_of(json_type["oneOf"], level, discriminator)
+        elif "allOf" in json_type:
+            return self._convert_all_of(json_type["allOf"], level)
         return TS_ANY_TYPE
 
     def _convert_any_of(self, any_of_list: list, level: int = 1) -> str:
@@ -319,16 +349,89 @@ class SchemaConverter:
         except Exception as e:
             raise ConversionError(f"Failed to convert anyOf: {e}") from e
 
-    def _convert_one_of(self, one_of_list: list, level: int = 1) -> str:
-        """Convert oneOf to TypeScript union type."""
+    def _convert_one_of(
+        self, one_of_list: list, level: int = 1, discriminator: dict | None = None
+    ) -> str:
+        """Convert oneOf to TypeScript union type with optional discriminator support."""
         if not isinstance(one_of_list, list):
             raise ConversionError("oneOf must be a list")
 
         try:
-            types = [self._convert_json_schema_type(t, level) for t in one_of_list]
+            types = []
+            for t in one_of_list:
+                converted_type = self._convert_json_schema_type(t, level)
+
+                # Add discriminator information if available
+                if discriminator and "$ref" in t:
+                    ref_name = t["$ref"].replace("#/$defs/", "")
+                    property_name = discriminator.get("propertyName", "type")
+                    mapping = discriminator.get("mapping", {})
+
+                    # Find the discriminator value for this type
+                    discriminator_value = None
+                    for value, ref_path in mapping.items():
+                        if ref_path.endswith(ref_name):
+                            discriminator_value = value
+                            break
+
+                    if discriminator_value:
+                        # Add comment about the discriminator
+                        converted_type = f'{converted_type} // {property_name}: "{discriminator_value}"'
+
+                types.append(converted_type)
+
             return TS_UNION_SEPARATOR.join(types)
         except Exception as e:
             raise ConversionError(f"Failed to convert oneOf: {e}") from e
+
+    def _convert_all_of(self, all_of_list: list, level: int = 1) -> str:
+        """Convert allOf to TypeScript intersection-like type."""
+        if not isinstance(all_of_list, list):
+            raise ConversionError("allOf must be a list")
+
+        try:
+            # For allOf, we need to merge all the schemas into one object
+            merged_properties = {}
+            merged_required = set()
+            descriptions = []
+
+            for schema in all_of_list:
+                if not isinstance(schema, dict):
+                    raise ConversionError("allOf items must be dictionaries")
+
+                # Collect properties from each schema
+                if "properties" in schema:
+                    merged_properties.update(schema["properties"])
+
+                # Collect required fields
+                if "required" in schema:
+                    merged_required.update(schema["required"])
+
+                # Collect descriptions for the intersection comment
+                if "description" in schema:
+                    descriptions.append(schema["description"])
+
+            # Create a merged schema
+            merged_schema = {
+                "type": "object",
+                "properties": merged_properties,
+                "required": list(merged_required),
+            }
+
+            # Convert the merged schema
+            result = self._convert_object_type(merged_schema, level)
+
+            # Add intersection comment if we have descriptions
+            if descriptions:
+                intersection_comment = f"// Intersection of: {', '.join(descriptions)}"
+                lines = result.split("\n")
+                lines.insert(1, f"  {intersection_comment}")
+                result = "\n".join(lines)
+
+            return result
+
+        except Exception as e:
+            raise ConversionError(f"Failed to convert allOf: {e}") from e
 
     def _convert_json_schema_type(self, json_type: dict, level: int = 1) -> str:
         """Convert a JSON Schema type to TypeScript type."""
@@ -340,6 +443,10 @@ class SchemaConverter:
         # Handle $ref (references to definitions)
         if "$ref" in json_type:
             return self._convert_reference(json_type, level)
+
+        # Handle union types first (allOf, anyOf, oneOf) before checking type
+        if any(key in json_type for key in ["allOf", "anyOf", "oneOf"]):
+            return self._convert_union_types(json_type, level)
 
         # Handle type field
         json_type_name = json_type.get("type")
@@ -595,7 +702,109 @@ class SchemaConverter:
             if schema.get("uniqueItems"):
                 constraints.append("uniqueItems: true")
 
+            # Contains constraints
+            if "contains" in schema:
+                contains_constraint = self._format_contains_constraint(schema)
+                if contains_constraint:
+                    constraints.append(contains_constraint)
+
+            # MinContains/MaxContains constraints
+            if "minContains" in schema and "maxContains" in schema:
+                constraints.append(
+                    f"contains: {schema['minContains']}-{schema['maxContains']} items"
+                )
+            elif "minContains" in schema:
+                constraints.append(f"minContains: {schema['minContains']}")
+            elif "maxContains" in schema:
+                constraints.append(f"maxContains: {schema['maxContains']}")
+
+        # Handle not constraints
+        if "not" in schema:
+            not_constraint = self._format_not_constraint(schema["not"])
+            if not_constraint:
+                constraints.append(not_constraint)
+
         return constraints
+
+    def _format_not_constraint(self, not_schema: dict) -> str:
+        """Format not constraint for human-readable display.
+
+        Args:
+            not_schema: The not constraint schema
+
+        Returns:
+            A formatted string representation of the not constraint
+        """
+        if not isinstance(not_schema, dict):
+            return ""
+
+        # Handle enum exclusions
+        if "enum" in not_schema:
+            excluded_values = not_schema["enum"]
+            if isinstance(excluded_values, list) and excluded_values:
+                formatted_values = [
+                    self._format_default_value(val) for val in excluded_values
+                ]
+                if len(formatted_values) == 1:
+                    return f"not: {formatted_values[0]}"
+                else:
+                    return f"not: {', '.join(formatted_values)}"
+
+        # Handle type exclusions
+        if "type" in not_schema:
+            excluded_type = not_schema["type"]
+            return f"not: {excluded_type}"
+
+        # Handle more complex not constraints
+        if "properties" in not_schema:
+            return "not: specific object pattern"
+
+        return "not: specific constraint"
+
+    def _format_contains_constraint(self, schema: dict) -> str:
+        """Format contains constraint for human-readable display.
+
+        Args:
+            schema: The array schema with contains constraint
+
+        Returns:
+            A formatted string representation of the contains constraint
+        """
+        contains_schema = schema.get("contains", {})
+        if not isinstance(contains_schema, dict):
+            return ""
+
+        # Handle type-based contains
+        if "type" in contains_schema:
+            contains_type = contains_schema["type"]
+
+            # Add pattern information if available
+            if "pattern" in contains_schema:
+                pattern = contains_schema["pattern"]
+                if pattern == "^required_":
+                    return f"contains: {contains_type} starting with 'required_'"
+                elif pattern == "^tag:":
+                    return f"contains: {contains_type} starting with 'tag:'"
+                else:
+                    return f"contains: {contains_type} matching pattern {pattern}"
+
+            return f"contains: {contains_type}"
+
+        # Handle enum-based contains
+        if "enum" in contains_schema:
+            enum_values = contains_schema["enum"]
+            if isinstance(enum_values, list) and enum_values:
+                formatted_values = [
+                    self._format_default_value(val) for val in enum_values
+                ]
+                return f"contains: one of {', '.join(formatted_values)}"
+
+        # Handle const-based contains
+        if "const" in contains_schema:
+            const_value = self._format_default_value(contains_schema["const"])
+            return f"contains: {const_value}"
+
+        return "contains: specific item"
 
     def _format_examples(self, schema: dict) -> str:
         """Format examples for human-readable display in comments.
