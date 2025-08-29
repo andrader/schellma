@@ -61,7 +61,8 @@ Homepage = "https://github.com/andrader/schellma"
 Documentation = "https://andrader.github.io/schellma/"
 Repository = "https://github.com/andrader/schellma.git"
 Issues = "https://github.com/andrader/schellma/issues"
-Changelog = "https://github.com/andrader/schellma/releases"
+Releases = "https://github.com/andrader/schellma/releases"
+Changelog = "https://andrader.github.io/schellma/CHANGELOG/"
 
 [build-system]
 requires = ["hatchling"]
