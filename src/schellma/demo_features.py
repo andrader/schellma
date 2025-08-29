@@ -19,6 +19,40 @@ from typing import Annotated, Any, Literal
 from pydantic import BaseModel, Field
 
 from schellma.converters import to_llm
+from schellma.logger import get_logger, setup_logging
+
+logger = get_logger()
+setup_logging()
+
+PYTHON_CODE = "```python\n{code}\n```"
+JSON_CODE = "```json\n{code}\n```"
+TYPESCRIPT_CODE = "```typescript\n{code}\n```"
+
+
+def demonstrate_feature(title: str, model_or_schema: Any, description: str) -> str:
+    """Demonstrate a specific feature with clear output."""
+    logger.info(f"Creating demo for '{title}'")
+
+    text: list[str] = [
+        f"## {title}",
+        f"\n{description}",
+    ]
+
+    # Show Python code for Pydantic models
+    if issubclass(model_or_schema, BaseModel):
+        code = inspect.getsource(model_or_schema)
+        text.append(PYTHON_CODE.format(code=code))
+    else:
+        import json
+
+        json_str = json.dumps(model_or_schema, indent=2)
+        text.append(JSON_CODE.format(code=json_str))
+
+    code = to_llm(model_or_schema, define_types=True)
+    text.append(TYPESCRIPT_CODE.format(code=code))
+
+    md = "\n".join(text)
+    return md
 
 
 # === 1. DEFAULT VALUES SUPPORT ===
@@ -198,38 +232,6 @@ advanced_array_schemas = {
     },
 }
 
-PYTHON_CODE = "```python\n{code}\n```"
-JSON_CODE = "```json\n{code}\n```"
-TYPESCRIPT_CODE = "```typescript\n{code}\n```"
-
-
-def demonstrate_feature(title: str, model_or_schema: Any, description: str) -> None:
-    """Demonstrate a specific feature with clear output."""
-
-    text: list[str] = [
-        f"## {title}",
-        f"\n{description}",
-    ]
-
-    # Show Python code for Pydantic models
-    if issubclass(model_or_schema, BaseModel):
-        code = inspect.getsource(model_or_schema)
-        text.append(PYTHON_CODE.format(code=code))
-    elif isinstance(model_or_schema, dict):
-        import json
-
-        json_str = json.dumps(model_or_schema, indent=2)
-        text.append(JSON_CODE.format(code=json_str))
-    else:
-        raise ValueError(
-            f"Invalid model or schema type: {type(model_or_schema).__name__}"
-        )
-
-    code = to_llm(model_or_schema, define_types=True)
-    text.append(TYPESCRIPT_CODE.format(code=code))
-
-    print("\n".join(text))
-
 
 class ComprehensiveUserModel(BaseModel):
     """A comprehensive model showcasing all implemented roadmap features."""
@@ -322,88 +324,12 @@ class ComprehensiveUserModel(BaseModel):
     )
 
 
-if __name__ == "__main__":
-    print("# 🎯 scheLLMa Complete Roadmap Features Demonstration")
-
-    print("This demonstrates ALL implemented roadmap features for LLM integration")
-
-    # Feature 1: Default Values
-    demonstrate_feature(
-        "1. Default Values Support",
-        UserProfile,
-        "Shows default values in human-readable comments for better LLM understanding",
-    )
-
-    # Feature 2: Field Constraints
-    demonstrate_feature(
-        "2. Field Constraints with Human-Readable Comments",
-        ProductModel,
-        "Displays string, numeric, and array constraints in clear, readable format",
-    )
-
-    # Feature 3: Advanced Union Types - Discriminated Union
-    demonstrate_feature(
-        "3a. Discriminated Union Types",
-        UserOrAdmin,
-        "Shows discriminated unions with clear type indicators",
-    )
-
-    # Feature 3: Advanced Union Types - Inheritance (allOf-like)
-    demonstrate_feature(
-        "3b. Inheritance (allOf-like behavior)",
-        ExtendedUser,
-        "Demonstrates inheritance patterns that work like allOf intersections",
-    )
-
-    # Feature 3: Advanced Union Types - Direct allOf
-    demonstrate_feature(
-        "3c. allOf Intersection Types",
-        advanced_array_schemas["allof_intersection"],
-        "Direct allOf schema merging with intersection comments",
-    )
-
-    # Feature 3: Advanced Union Types - not constraints
-    demonstrate_feature(
-        "3d. NOT Constraints",
-        advanced_array_schemas["not_constraint"],
-        "Exclusion constraints with human-readable descriptions",
-    )
-
-    # Feature 4: Required vs Optional
-    demonstrate_feature(
-        "4. Required vs Optional Fields Clarity",
-        RegistrationForm,
-        "Clear distinction between required and optional fields with proper marking",
-    )
-
-    # Feature 5: Examples and Documentation
-    demonstrate_feature(
-        "5. Examples and Documentation Support",
-        APIRequest,
-        "Rich examples that help LLMs understand expected data patterns",
-    )
-
-    # Feature 6: Advanced Array Types - Contains
-    demonstrate_feature(
-        "6a. Advanced Array Types - Contains Constraints",
-        advanced_array_schemas["contains_constraint"],
-        "Arrays with contains constraints and count limitations",
-    )
-
-    # Feature 6: Advanced Array Types - Tuples
-    demonstrate_feature(
-        "6b. Advanced Array Types - Enhanced Tuples",
-        advanced_array_schemas["advanced_tuple"],
-        "Tuples with additional items and descriptive constraints",
-    )
-
-    demonstrate_feature(
-        "7. Comprehensive User Model",
-        ComprehensiveUserModel,
-        "A comprehensive model showcasing all implemented roadmap features",
-    )
-
-    md = """## 🌟 Key Features Demonstrated
+def main() -> None:
+    logger.info("Demonstrating complete roadmap features")
+    texts = [
+        "# 🎯 scheLLMa Complete Roadmap Features Demonstration",
+        "This demonstrates ALL implemented roadmap features for LLM integration",
+        """## 🌟 Key Features
 
 - Default values shown in human-readable format
 - String constraints (length, patterns) with smart formatting
@@ -415,12 +341,94 @@ if __name__ == "__main__":
 - Complex default values (objects, arrays) properly formatted
 
 
-🚀 Perfect for LLM Integration:
+## 🚀 Perfect for LLM Integration:
 - Concise, readable format reduces token usage
 - Rich context helps LLMs understand field requirements
 - Examples provide clear guidance for data generation
 - Constraints prevent invalid data creation
 - Human-readable comments improve prompt engineering
-"""
+""",
+        # Feature 1: Default Values
+        demonstrate_feature(
+            "1. Default Values Support",
+            UserProfile,
+            "Shows default values in human-readable comments for better LLM understanding",
+        ),
+        # Feature 2: Field Constraints
+        demonstrate_feature(
+            "2. Field Constraints with Human-Readable Comments",
+            ProductModel,
+            "Displays string, numeric, and array constraints in clear, readable format",
+        ),
+        # Feature 3: Advanced Union Types - Discriminated Union
+        demonstrate_feature(
+            "3a. Discriminated Union Types",
+            UserOrAdmin,
+            "Shows discriminated unions with clear type indicators",
+        ),
+        # Feature 3: Advanced Union Types - Inheritance (allOf-like)
+        demonstrate_feature(
+            "3b. Inheritance (allOf-like behavior)",
+            ExtendedUser,
+            "Demonstrates inheritance patterns that work like allOf intersections",
+        ),
+        # Feature 3: Advanced Union Types - Direct allOf
+        demonstrate_feature(
+            "3c. allOf Intersection Types",
+            advanced_array_schemas["allof_intersection"],
+            "Direct allOf schema merging with intersection comments",
+        ),
+        # Feature 3: Advanced Union Types - not constraints
+        demonstrate_feature(
+            "3d. NOT Constraints",
+            advanced_array_schemas["not_constraint"],
+            "Exclusion constraints with human-readable descriptions",
+        ),
+        # Feature 4: Required vs Optional
+        demonstrate_feature(
+            "4. Required vs Optional Fields Clarity",
+            RegistrationForm,
+            "Clear distinction between required and optional fields with proper marking",
+        ),
+        # Feature 5: Examples and Documentation
+        demonstrate_feature(
+            "5. Examples and Documentation Support",
+            APIRequest,
+            "Rich examples that help LLMs understand expected data patterns",
+        ),
+        # Feature 6: Advanced Array Types - Contains
+        demonstrate_feature(
+            "6a. Advanced Array Types - Contains Constraints",
+            advanced_array_schemas["contains_constraint"],
+            "Arrays with contains constraints and count limitations",
+        ),
+        # Feature 6: Advanced Array Types - Tuples
+        demonstrate_feature(
+            "6b. Advanced Array Types - Enhanced Tuples",
+            advanced_array_schemas["advanced_tuple"],
+            "Tuples with additional items and descriptive constraints",
+        ),
+        demonstrate_feature(
+            "7. Comprehensive User Model",
+            ComprehensiveUserModel,
+            "A comprehensive model showcasing all implemented roadmap features",
+        ),
+    ]
 
-    print(md)
+    md = "\n\n".join(texts)
+
+    # save to docs/demo.md
+    file = "docs/demo.md"
+    with open(file, "w") as f:
+        f.write(md)
+
+    logger.info(f"Demo saved to '{file}'")
+
+
+def on_startup(*args, **kwargs) -> None:  # type: ignore[no-untyped-def]
+    logger.info("Running demo_features on startup")
+    main()
+
+
+if __name__ == "__main__":
+    main()
