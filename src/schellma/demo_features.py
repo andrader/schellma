@@ -13,11 +13,12 @@ This script demonstrates ALL implemented roadmap features:
 Perfect for understanding scheLLMa's full capabilities for LLM integration.
 """
 
-from typing import Any, Literal
+import inspect
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field
 
-from schellma import json_schema_to_llm, pydantic_to_llm
+from schellma.converters import to_llm
 
 
 # === 1. DEFAULT VALUES SUPPORT ===
@@ -25,7 +26,7 @@ class UserProfile(BaseModel):
     """User profile with comprehensive default values."""
 
     name: str = Field(default="Anonymous", description="User display name")
-    age: int = Field(default=0, description="User age in years")
+    age: Annotated[int, Field(ge=0)] = Field(default=0, description="User age in years")
     active: bool = Field(default=True, description="Account status")
     tags: list[str] = Field(default_factory=list, description="User tags")
     settings: dict[str, str] = Field(
@@ -197,29 +198,133 @@ advanced_array_schemas = {
     },
 }
 
+PYTHON_CODE = "```python\n{code}\n```"
+JSON_CODE = "```json\n{code}\n```"
+TYPESCRIPT_CODE = "```typescript\n{code}\n```"
+
 
 def demonstrate_feature(title: str, model_or_schema: Any, description: str) -> None:
     """Demonstrate a specific feature with clear output."""
-    print(f"\n{'=' * 60}")
-    print(f"🚀 {title}")
-    print(f"{'=' * 60}")
-    print(f"📝 {description}")
-    print("\n💡 Generated TypeScript-like Schema:")
-    print("-" * 40)
 
-    if isinstance(model_or_schema, dict):
-        # It's a JSON schema
-        result = json_schema_to_llm(model_or_schema)
+    text: list[str] = [
+        f"## {title}",
+        f"\n{description}",
+    ]
+
+    # Show Python code for Pydantic models
+    if issubclass(model_or_schema, BaseModel):
+        code = inspect.getsource(model_or_schema)
+        text.append(PYTHON_CODE.format(code=code))
+    elif isinstance(model_or_schema, dict):
+        import json
+
+        json_str = json.dumps(model_or_schema, indent=2)
+        text.append(JSON_CODE.format(code=json_str))
     else:
-        # It's a Pydantic model
-        result = pydantic_to_llm(model_or_schema)
+        raise ValueError(
+            f"Invalid model or schema type: {type(model_or_schema).__name__}"
+        )
 
-    print(result)
+    code = to_llm(model_or_schema, define_types=True)
+    text.append(TYPESCRIPT_CODE.format(code=code))
+
+    print("\n".join(text))
+
+
+class ComprehensiveUserModel(BaseModel):
+    """A comprehensive model showcasing all implemented roadmap features."""
+
+    # Required fields with constraints and examples
+    username: str = Field(
+        description="Unique username for the account",
+        min_length=3,
+        max_length=20,
+        pattern=r"^[a-zA-Z0-9_]+$",
+        examples=["john_doe", "jane_smith", "user123"],
+    )
+
+    email: str = Field(
+        description="User's email address",
+        pattern=r"^[^@]+@[^@]+\.[^@]+$",
+        examples=["john@example.com", "jane@company.org"],
+    )
+
+    # Optional fields with defaults, constraints, and examples
+    name: str = Field(
+        default="Anonymous User",
+        description="Display name for the user",
+        min_length=1,
+        max_length=100,
+        examples=["John Doe", "Jane Smith"],
+    )
+
+    age: int = Field(
+        default=18,
+        description="User's age in years",
+        ge=13,
+        le=120,
+        examples=[25, 30, 35],
+    )
+
+    # Nullable fields with constraints and examples
+    bio: str | None = Field(
+        default=None,
+        description="User's biography",
+        max_length=500,
+        examples=[
+            "Software developer passionate about AI",
+            "Love hiking and photography",
+        ],
+    )
+
+    phone: str | None = Field(
+        default=None,
+        description="User's phone number",
+        pattern=r"^\+?1?\d{9,15}$",
+        examples=["+1-555-123-4567", "+44-20-7946-0958"],
+    )
+
+    # Array fields with constraints and examples
+    tags: list[str] = Field(
+        default_factory=list,
+        description="User interest tags",
+        min_length=0,
+        max_length=10,
+        examples=[["python", "ai", "music"], ["travel", "photography"]],
+    )
+
+    # Numeric fields with special constraints
+    score: float = Field(
+        default=0.0,
+        description="User's reputation score",
+        ge=0.0,
+        le=100.0,
+        examples=[85.5, 92.3, 78.1],
+    )
+
+    rating: int = Field(
+        default=5,
+        description="User's star rating",
+        ge=1,
+        le=5,
+        multiple_of=1,
+        examples=[4, 5],
+    )
+
+    # Complex default values
+    preferences: dict[str, str] = Field(
+        default={"theme": "dark", "language": "en", "timezone": "UTC"},
+        description="User preferences and settings",
+        examples=[
+            {"theme": "light", "language": "es"},
+            {"theme": "dark", "language": "fr"},
+        ],
+    )
 
 
 if __name__ == "__main__":
-    print("🎯 scheLLMa Complete Roadmap Features Demonstration")
-    print("=" * 60)
+    print("# 🎯 scheLLMa Complete Roadmap Features Demonstration")
+
     print("This demonstrates ALL implemented roadmap features for LLM integration")
 
     # Feature 1: Default Values
@@ -292,16 +397,30 @@ if __name__ == "__main__":
         "Tuples with additional items and descriptive constraints",
     )
 
-    print(f"\n{'=' * 60}")
-    print("🎉 ALL ROADMAP FEATURES SUCCESSFULLY IMPLEMENTED!")
-    print("=" * 60)
-    print("✅ Default Values Support")
-    print("✅ Field Constraints with Human-Readable Comments")
-    print("✅ Advanced Union Types (allOf, not, discriminated)")
-    print("✅ Required vs Optional Fields Clarity")
-    print("✅ Examples and Documentation Support")
-    print("✅ Advanced Array Types (contains, tuples)")
-    print("\n🚀 scheLLMa is now fully optimized for LLM integration!")
-    print(
-        "   Perfect for generating schemas that LLMs can easily understand and follow."
+    demonstrate_feature(
+        "7. Comprehensive User Model",
+        ComprehensiveUserModel,
+        "A comprehensive model showcasing all implemented roadmap features",
     )
+
+    md = """## 🌟 Key Features Demonstrated
+
+- Default values shown in human-readable format
+- String constraints (length, patterns) with smart formatting
+- Numeric constraints (ranges, multiples) with clear descriptions
+- Array constraints (item counts) with readable limits
+- Required/optional field marking for clear API contracts
+- Examples for better LLM understanding and human documentation
+- Nullable type constraints properly extracted from union types
+- Complex default values (objects, arrays) properly formatted
+
+
+🚀 Perfect for LLM Integration:
+- Concise, readable format reduces token usage
+- Rich context helps LLMs understand field requirements
+- Examples provide clear guidance for data generation
+- Constraints prevent invalid data creation
+- Human-readable comments improve prompt engineering
+"""
+
+    print(md)
