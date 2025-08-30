@@ -2,13 +2,9 @@
 
 _Schemas for LLMs and Structured Output_
 
-[![Documentation](https://img.shields.io/badge/Documentation-blue)](https://andrader.github.io/schellma/)
-[![Demo and Examples](https://img.shields.io/badge/Demo_and_Examples-blue)](https://andrader.github.io/schellma/demo/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://badge.fury.io/py/schellma.svg)](https://badge.fury.io/py/schellma)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/schellma)
-
-
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Converts Pydantic models/JSON Schemas to clean, simplified type definitions perfect for **generating structured output** with **LLM prompts**. 
 
@@ -18,7 +14,150 @@ Unlike verbose JSON Schema formats, **scheLLMa** produces readable, concise type
 - **Minimize parsing errors** - Simple syntax is easier for models to parse, less verbose than JSON Schema, reducing confusion
 - **Stay readable** - Human-friendly format for prompt engineering
 
-View the [documentation](https://andrader.github.io/schellma/) for more details.
+<div class="grid" markdown>
+
+
+!!! note ""
+    === "Pydantic"
+
+
+        ```python
+        class ProductModel(BaseModel):
+            """Product with comprehensive field constraints."""
+
+            # String constraints
+            name: str = Field(min_length=3, max_length=100, description="Product name")
+            sku: str = Field(pattern=r"^[A-Z]{3}-\d{4}$", description="Product SKU")
+            email: str = Field(pattern=r"^[^@]+@[^@]+\.[^@]+$", description="Contact email")
+
+            # Numeric constraints
+            price: float = Field(ge=0.01, le=999999.99, description="Product price")
+            quantity: int = Field(ge=1, description="Stock quantity")
+            discount: float = Field(multiple_of=0.05, description="Discount percentage")
+
+            # Array constraints
+            categories: list[str] = Field(
+                min_length=1, max_length=5, description="Product categories"
+            )
+            tags: set[str] = Field(description="Unique product tags")
+        ```
+
+!!! tip "ScheLLMa vs JSON Schema"
+
+    === "scheLLMa"
+
+        ```typescript
+        {
+            // Product name, length: 3-100, required
+            "name": string,
+            // Product SKU, pattern: ^[A-Z]{3}-\d{4}$, required
+            "sku": string,
+            // Contact email, format: email, required
+            "email": string,
+            // Product price, range: 0.01-999999.99, required
+            "price": number,
+            // Stock quantity, minimum: 1, required
+            "quantity": int,
+            // Discount percentage, multipleOf: 0.05 (5% increments), required
+            "discount": number,
+            // Product categories, items: 1-5, required
+            "categories": string[],
+            // Unique product tags, uniqueItems: true, required
+            "tags": string[],
+        }
+        ```
+
+    === "JSON Schema"
+
+        ```json
+        {
+            "description": "Product with comprehensive field constraints.",
+            "properties": {
+                "name": {
+                "description": "Product name",
+                "maxLength": 100,
+                "minLength": 3,
+                "title": "Name",
+                "type": "string"
+                },
+                "sku": {
+                "description": "Product SKU",
+                "pattern": "^[A-Z]{3}-\\d{4}$",
+                "title": "Sku",
+                "type": "string"
+                },
+                "email": {
+                "description": "Contact email",
+                "pattern": "^[^@]+@[^@]+\\.[^@]+$",
+                "title": "Email",
+                "type": "string"
+                },
+                "price": {
+                "description": "Product price",
+                "maximum": 999999.99,
+                "minimum": 0.01,
+                "title": "Price",
+                "type": "number"
+                },
+                "quantity": {
+                "description": "Stock quantity",
+                "minimum": 1,
+                "title": "Quantity",
+                "type": "integer"
+                },
+                "discount": {
+                "description": "Discount percentage",
+                "multipleOf": 0.05,
+                "title": "Discount",
+                "type": "number"
+                },
+                "categories": {
+                "description": "Product categories",
+                "items": {
+                    "type": "string"
+                },
+                "maxItems": 5,
+                "minItems": 1,
+                "title": "Categories",
+                "type": "array"
+                },
+                "tags": {
+                "description": "Unique product tags",
+                "items": {
+                    "type": "string"
+                },
+                "title": "Tags",
+                "type": "array",
+                "uniqueItems": true
+                }
+            },
+            "required": [
+                "name",
+                "sku",
+                "email",
+                "price",
+                "quantity",
+                "discount",
+                "categories",
+                "tags"
+            ],
+            "title": "ProductModel",
+            "type": "object"
+        }
+        ```
+
+
+
+
+
+    
+
+
+
+</div>
+
+
+
 
 Checkout the [demo](https://andrader.github.io/schellma/demo/) for more examples!
 

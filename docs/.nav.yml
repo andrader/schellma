@@ -1,5 +1,5 @@
 nav:
-  - ScheLLMa: README.md
+  - ScheLLMa: index.md
   - Demo: demo.md
   - API Reference: reference
   - Changelog: CHANGELOG.md
