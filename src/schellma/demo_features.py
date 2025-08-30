@@ -2,20 +2,17 @@
 """
 Features Demonstration
 
-This script demonstrates ALL implemented features:
-1. ✅ Default Values Support
-2. ✅ Field Constraints with Human-Readable Comments
-3. ✅ Advanced Union Types with Clear Descriptions
-4. ✅ Required vs Optional Fields Clarity
-5. ✅ Examples and Documentation Support
-6. ✅ Advanced Array Types with Descriptions
+
 
 Perfect for understanding scheLLMa's full capabilities for LLM integration.
 """
 
 import inspect
+import json
+from textwrap import indent
 from typing import Annotated, Any, Literal
 
+import tiktoken
 from pydantic import BaseModel, Field
 
 from schellma.converters import schellma
@@ -24,34 +21,88 @@ from schellma.logger import get_logger, setup_logging
 logger = get_logger()
 setup_logging()
 
-PYTHON_CODE = "```python\n{code}\n```"
-JSON_CODE = "```json\n{code}\n```"
-SCHELLMA_CODE = "```typescript\n{code}\n```"
+
+def code_block(language: str, code: str) -> str:
+    return f"""```{language}\n{code}\n```"""
+
+
+def admontion_block(title: str, content: str, type: str = "note") -> str:
+    return f"""!!! {type} "{title}"
+{indent(content, "    ")}
+"""
+
+
+def tab_block(title: str, content: str) -> str:
+    return f"""=== "{title}"
+{indent(content, "    ")}
+"""
+
+
+def grid_block(*args: str) -> str:
+    args_str = "\n\n".join(args)
+    return f"""<div class="grid" markdown>
+
+{args_str}
+
+</div>
+"""
+
+
+def count_tokens(string: str, encoding_name: str = "cl100k_base") -> int:
+    """Returns the number of tokens in a text string."""
+    encoding = tiktoken.get_encoding(encoding_name)
+    num_tokens = len(encoding.encode(string))
+    return num_tokens
 
 
 def demonstrate_feature(title: str, model_or_schema: Any, description: str) -> str:
     """Demonstrate a specific feature with clear output."""
     logger.info(f"Creating demo for '{title}'")
 
-    text: list[str] = [
-        f"## {title}",
-        f"\n{description}",
-    ]
-
-    # Show Python code for Pydantic models
-    if issubclass(model_or_schema, BaseModel):
-        code = inspect.getsource(model_or_schema)
-        text.append(PYTHON_CODE.format(code=code))
+    if isinstance(model_or_schema, type) and issubclass(model_or_schema, BaseModel):
+        py_code = inspect.getsource(model_or_schema)
+        json_code = json.dumps(
+            model_or_schema.model_json_schema(), indent=2, ensure_ascii=False
+        )
     else:
-        import json
+        py_code = None
+        json_code = json.dumps(model_or_schema, indent=2, ensure_ascii=False)
 
-        json_str = json.dumps(model_or_schema, indent=2)
-        text.append(JSON_CODE.format(code=json_str))
+    schellma_code = schellma(model_or_schema, define_types=True)
 
-    code = schellma(model_or_schema, define_types=True)
-    text.append(SCHELLMA_CODE.format(code=code))
+    schellma_tokens = count_tokens(schellma_code)
+    json_tokens = count_tokens(json_code)
 
-    md = "\n".join(text)
+    if py_code:
+        demo_md = grid_block(
+            admontion_block("Pydantic", code_block("python", py_code)),
+            admontion_block(
+                "ScheLLMa vs JSON Schema",
+                tab_block(
+                    f"ScheLLMa ({schellma_tokens} tokens)",
+                    code_block("typescript", schellma_code),
+                )
+                + tab_block(
+                    f"JSON Schema ({json_tokens} tokens)",
+                    code_block("json", json_code),
+                ),
+            ),
+        )
+    else:
+        demo_md = grid_block(
+            admontion_block(
+                f"JSON Schema ({json_tokens} tokens)",
+                code_block("json", json_code),
+            ),
+            admontion_block(
+                f"ScheLLMa ({schellma_tokens} tokens)",
+                code_block("typescript", schellma_code),
+                type="tip",
+            ),
+        )
+
+    md = f"""## {title}\n\n{description}\n\n{demo_md}"""
+
     return md
 
 
@@ -325,11 +376,11 @@ class ComprehensiveUserModel(BaseModel):
 
 
 def main() -> None:
-    logger.info("Demonstrating complete features")
+    logger.info("Demonstrating features")
     texts = [
-        "# 🎯 scheLLMa Complete Features Demonstration",
-        "This demonstrates ALL implemented features for LLM integration",
-        """## 🌟 Key Features
+        "# **scheLLMa**: Features Demonstration",
+        "This demonstrates some of the implemented features:",
+        """## Key Features
 
 - Default values shown in human-readable format
 - String constraints (length, patterns) with smart formatting
@@ -341,7 +392,7 @@ def main() -> None:
 - Complex default values (objects, arrays) properly formatted
 
 
-## 🚀 Perfect for LLM Integration:
+## Perfect for LLM Integration:
 - Concise, readable format reduces token usage
 - Rich context helps LLMs understand field requirements
 - Examples provide clear guidance for data generation
