@@ -22,45 +22,132 @@ Unlike verbose JSON Schema formats, **scheLLMa** produces readable, concise type
 
 
         ```python
-        from pydantic import BaseModel, Field
-        from schellma import schellma
+        class ProductModel(BaseModel):
+            """Product with comprehensive field constraints."""
 
-        class User(BaseModel):
-            name: str = Field(default="Anonymous", description="The name of the user")
-            age: int = Field(ge=0, le=150, description="User age in years")
-            email: str | None = Field(None, examples=["user@example.com"])
+            # String constraints
+            name: str = Field(min_length=3, max_length=100, description="Product name")
+            sku: str = Field(pattern=r"^[A-Z]{3}-\d{4}$", description="Product SKU")
+            email: str = Field(pattern=r"^[^@]+@[^@]+\.[^@]+$", description="Contact email")
+
+            # Numeric constraints
+            price: float = Field(ge=0.01, le=999999.99, description="Product price")
+            quantity: int = Field(ge=1, description="Stock quantity")
+            discount: float = Field(multiple_of=0.05, description="Discount percentage")
+
+            # Array constraints
+            categories: list[str] = Field(
+                min_length=1, max_length=5, description="Product categories"
+            )
+            tags: set[str] = Field(description="Unique product tags")
+        ```
+
+!!! tip "ScheLLMa vs JSON Schema"
+
+    === "scheLLMa"
+
+        ```typescript
+        {
+            // Product name, length: 3-100, required
+            "name": string,
+            // Product SKU, pattern: ^[A-Z]{3}-\d{4}$, required
+            "sku": string,
+            // Contact email, format: email, required
+            "email": string,
+            // Product price, range: 0.01-999999.99, required
+            "price": number,
+            // Stock quantity, minimum: 1, required
+            "quantity": int,
+            // Discount percentage, multipleOf: 0.05 (5% increments), required
+            "discount": number,
+            // Product categories, items: 1-5, required
+            "categories": string[],
+            // Unique product tags, uniqueItems: true, required
+            "tags": string[],
+        }
         ```
 
     === "JSON Schema"
 
         ```json
         {
-        "type": "object",
-        "properties": {
-            "name": { "type": "string", "description": "The name of the user" },
-            "age": { "type": "integer" },
-            "email": { "type": ["string", "null"], "default": null }
-        },
-        "required": ["name", "age"],
-        "additionalProperties": false
+            "description": "Product with comprehensive field constraints.",
+            "properties": {
+                "name": {
+                "description": "Product name",
+                "maxLength": 100,
+                "minLength": 3,
+                "title": "Name",
+                "type": "string"
+                },
+                "sku": {
+                "description": "Product SKU",
+                "pattern": "^[A-Z]{3}-\\d{4}$",
+                "title": "Sku",
+                "type": "string"
+                },
+                "email": {
+                "description": "Contact email",
+                "pattern": "^[^@]+@[^@]+\\.[^@]+$",
+                "title": "Email",
+                "type": "string"
+                },
+                "price": {
+                "description": "Product price",
+                "maximum": 999999.99,
+                "minimum": 0.01,
+                "title": "Price",
+                "type": "number"
+                },
+                "quantity": {
+                "description": "Stock quantity",
+                "minimum": 1,
+                "title": "Quantity",
+                "type": "integer"
+                },
+                "discount": {
+                "description": "Discount percentage",
+                "multipleOf": 0.05,
+                "title": "Discount",
+                "type": "number"
+                },
+                "categories": {
+                "description": "Product categories",
+                "items": {
+                    "type": "string"
+                },
+                "maxItems": 5,
+                "minItems": 1,
+                "title": "Categories",
+                "type": "array"
+                },
+                "tags": {
+                "description": "Unique product tags",
+                "items": {
+                    "type": "string"
+                },
+                "title": "Tags",
+                "type": "array",
+                "uniqueItems": true
+                }
+            },
+            "required": [
+                "name",
+                "sku",
+                "email",
+                "price",
+                "quantity",
+                "discount",
+                "categories",
+                "tags"
+            ],
+            "title": "ProductModel",
+            "type": "object"
         }
         ```
 
 
-!!! tip "ScheLLMa"
 
-
-
-    ```typescript
-    {
-        // The name of the user, default: "Anonymous", optional
-        "name": string,
-        // User age in years, range: 0-150, required
-        "age": int,
-        // default: null, example: "user@example.com", optional
-        "email": string | null,
-    }
-    ```
 
 
     
