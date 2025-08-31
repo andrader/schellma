@@ -24,6 +24,28 @@ Checkout the [demo](https://andrader.github.io/schellma/demo/) for more examples
 
 Combine it with parsing libs, like `openai` sdk or `Instructor` for AWESOME results!
 
+- [scheLLMa](#schellma)
+  - [Features](#features)
+  - [Quick Start](#quick-start)
+    - [Using the new openai chat.completions.**parse** API](#using-the-new-openai-chatcompletionsparse-api)
+    - [Using the new openai Responses API](#using-the-new-openai-responses-api)
+  - [Installation](#installation)
+    - [Comparison with JSON Schema](#comparison-with-json-schema)
+  - [Advanced Usage with Type Definitions](#advanced-usage-with-type-definitions)
+  - [Examples](#examples)
+    - [Enum Support](#enum-support)
+    - [Complex Nested Structures](#complex-nested-structures)
+  - [Development](#development)
+    - [Setup](#setup)
+    - [Running Tests](#running-tests)
+    - [Type Checking](#type-checking)
+    - [Linting](#linting)
+  - [Contributing](#contributing)
+    - [Development Guidelines](#development-guidelines)
+  - [License](#license)
+  - [Changelog](#changelog)
+
+
 ## Features
 
 - 🤖 **Optimized for LLM prompts** - Clean, readable type definitions
@@ -220,6 +242,8 @@ Address {
 
 
 ## Examples
+
+View more exemples at [Demo](#demo.md)
 
 ### Enum Support
 
