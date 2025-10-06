@@ -1,11 +1,14 @@
 name: Publish to PyPI
 
 on:
-  push:
+  pull_request:
     branches:
       - main
+    types: [closed]
     tags:
       - 'v*'  # Trigger on version tags like v0.3.0, v1.0.0, etc.
+  
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -42,6 +45,7 @@ jobs:
           path: dist/
 
   publish-to-pypi:
+    if: github.event.pull_request.merged == true
     name: Publish to PyPI
     needs:
       - build
@@ -63,6 +67,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
 
   github-release:
+    if: github.event.pull_request.merged == true
     name: Create GitHub Release
     needs:
       - publish-to-pypi
