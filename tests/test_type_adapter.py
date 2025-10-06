@@ -232,7 +232,7 @@ class TestTypeAdapterEdgeCases:
         """Test that truly invalid types still raise errors."""
         # Pass a non-type object (not a class or type)
         with pytest.raises(InvalidSchemaError):
-            pydantic_to_schellma("not a type")  # type: ignore
+            pydantic_to_schellma("not a type")
 
     def test_none_type_conversion(self):
         """Test that None type can be converted via TypeAdapter."""

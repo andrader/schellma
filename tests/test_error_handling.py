@@ -31,7 +31,7 @@ class TestInvalidSchemaError:
         """Test that invalid model class raises InvalidSchemaError."""
         # With TypeAdapter support, the error message is different
         with pytest.raises(InvalidSchemaError, match="Failed to create TypeAdapter"):
-            pydantic_to_schellma("not a class")  # type: ignore
+            pydantic_to_schellma("not a class")
 
     def test_non_basemodel_class(self):
         """Test that non-BaseModel class raises InvalidSchemaError."""
@@ -41,7 +41,7 @@ class TestInvalidSchemaError:
 
         # With TypeAdapter support, arbitrary classes that can't be converted raise appropriate errors
         with pytest.raises(InvalidSchemaError, match="Failed to create TypeAdapter"):
-            pydantic_to_schellma(NotABaseModel)  # type: ignore
+            pydantic_to_schellma(NotABaseModel)
 
     def test_invalid_defs_structure(self):
         """Test that invalid $defs structure raises InvalidSchemaError."""
