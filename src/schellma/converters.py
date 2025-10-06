@@ -995,7 +995,7 @@ def schellma(
     elif isinstance(obj, UnionType):
         # Convert UnionType to JSON schema using TypeAdapter
         try:
-            adapter = TypeAdapter(obj)
+            adapter: TypeAdapter[Any] = TypeAdapter(obj)
             schema = adapter.json_schema()
             return json_schema_to_schellma(schema, define_types, indent)
         except Exception as e:
