@@ -1,3 +1,17 @@
+## v0.4.0 (2025-10-06)
+
+### Feat
+
+- add GitHub Actions workflow for publishing to PyPI and creating GitHub releases
+- add project instructions for Python package development
+- add VSCode settings for pytest configuration
+- support non-BaseModel types and unions
+
+### Fix
+
+- remove unused type: ignore comments in test files
+- update error messages for InvalidSchemaError in test cases
+
 ## v0.3.0 (2025-08-29)
 
 ### Feat
