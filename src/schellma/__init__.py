@@ -84,7 +84,7 @@ except ConversionError as e:
 from . import exceptions
 from .converters import json_schema_to_schellma, pydantic_to_schellma, schellma
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 __all__ = [
     "json_schema_to_schellma",
     "pydantic_to_schellma",

@@ -1,3 +1,13 @@
+## v0.3.1 (2025-01-06)
+
+### Feat
+
+- add support for UnionType in schellma() function
+
+### Fix
+
+- add type annotation for TypeAdapter to pass mypy
+
 ## v0.3.0 (2025-08-29)
 
 ### Feat
