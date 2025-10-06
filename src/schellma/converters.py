@@ -1,8 +1,9 @@
 """JSON Schema to ScheLLMa conversion utilities."""
 
+from types import UnionType
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, TypeAdapter
 
 from .constants import (
     DEFAULT_INDENT,
@@ -966,14 +967,14 @@ def pydantic_to_schellma(
 
 
 def schellma(
-    obj: dict | type[BaseModel],
+    obj: dict | type[BaseModel] | UnionType,
     define_types: bool = False,
     indent: int | bool | None = DEFAULT_INDENT,
 ) -> str:
     """Convert a JSON Schema dictionary or Pydantic model to a ScheLLMa type definition string.
 
     Args:
-        obj: A JSON Schema dictionary or Pydantic model
+        obj: A JSON Schema dictionary, Pydantic model, or UnionType
         define_types: If True, define reused types separately to avoid repetition
         indent: Indentation configuration:
             - False/None/0: No indentation (compact format)
@@ -991,5 +992,15 @@ def schellma(
         return pydantic_to_schellma(obj, define_types, indent)
     elif isinstance(obj, dict):
         return json_schema_to_schellma(obj, define_types, indent)
+    elif isinstance(obj, UnionType):
+        # Convert UnionType to JSON schema using TypeAdapter
+        try:
+            adapter = TypeAdapter(obj)
+            schema = adapter.json_schema()
+            return json_schema_to_schellma(schema, define_types, indent)
+        except Exception as e:
+            raise InvalidSchemaError(
+                f"Failed to convert UnionType to schema: {e}"
+            ) from e
     else:
         raise InvalidSchemaError(f"Invalid object type: {type(obj).__name__}")
