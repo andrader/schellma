@@ -913,14 +913,21 @@ def json_schema_to_schellma(
 
 
 def pydantic_to_schellma(
-    model_class: type[BaseModel],
+    model_class: type[BaseModel] | Any,
     define_types: bool = False,
     indent: int | bool | None = DEFAULT_INDENT,
 ) -> str:
-    """Convert a Pydantic model to a ScheLLMa type definition string.
+    """Convert a Pydantic model or any type to a ScheLLMa type definition string.
+
+    This function accepts:
+    - Pydantic BaseModel classes
+    - Union types (e.g., str | int)
+    - Generic types (e.g., list[str], dict[str, int])
+    - Primitive types (str, int, float, bool)
+    - Any other type that Pydantic's TypeAdapter can handle
 
     Args:
-        model_class: A Pydantic BaseModel class
+        model_class: A Pydantic BaseModel class or any type supported by TypeAdapter
         define_types: If True, define reused types separately to avoid repetition
         indent: Indentation configuration:
             - False/None/0: No indentation (compact format)
@@ -938,25 +945,42 @@ def pydantic_to_schellma(
         f"Converting Pydantic model {getattr(model_class, '__name__', str(model_class))} to ScheLLMa"
     )
 
-    if not isinstance(model_class, type):
-        logger.error(f"Invalid model class type: {type(model_class).__name__}")
-        raise InvalidSchemaError(
-            f"model_class must be a class, got {type(model_class).__name__}"
-        )
+    # Try to determine if this is a BaseModel subclass or needs TypeAdapter
+    is_base_model = False
+    type_adapter = None
 
     # Check if it's a BaseModel subclass
-    try:
-        if not issubclass(model_class, BaseModel):
-            raise InvalidSchemaError(
-                f"model_class must be a BaseModel subclass, got {model_class.__name__}"
-            )
-    except TypeError as e:
-        raise InvalidSchemaError(
-            f"model_class must be a class, got {type(model_class).__name__}"
-        ) from e
+    if isinstance(model_class, type):
+        try:
+            if issubclass(model_class, BaseModel):
+                is_base_model = True
+        except TypeError:
+            # Not a class that can be checked with issubclass
+            pass
 
+    # If not a BaseModel, try to create a TypeAdapter
+    if not is_base_model:
+        try:
+            from pydantic import TypeAdapter
+
+            type_adapter = TypeAdapter(model_class)
+            logger.debug(f"Created TypeAdapter for {model_class}")
+        except Exception as e:
+            raise InvalidSchemaError(
+                f"Failed to create TypeAdapter for {model_class}: {e}"
+            ) from e
+
+    # Generate JSON schema
     try:
-        schema = model_class.model_json_schema()
+        if is_base_model:
+            schema = model_class.model_json_schema()
+        elif type_adapter is not None:
+            # TypeAdapter uses json_schema() method, not model_json_schema()
+            schema = type_adapter.json_schema()
+        else:
+            raise InvalidSchemaError(
+                f"Failed to determine how to process {model_class}"
+            )
     except Exception as e:
         raise InvalidSchemaError(
             f"Failed to generate JSON schema from model: {e}"
